@@ -1,0 +1,6 @@
+﻿  Data.cpp
+C:\Users\praxs\OneDrive - nyu.edu\Repositories\Stock-Price-Movement\Data.cpp(59,16): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\praxs\OneDrive - nyu.edu\Repositories\Stock-Price-Movement\Data.cpp(82,17): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\praxs\OneDrive - nyu.edu\Repositories\Stock-Price-Movement\Data.cpp(134,62): error C3867: 'Data::write_data': non-standard syntax; use '&' to create a pointer to member
+C:\Users\praxs\OneDrive - nyu.edu\Repositories\Stock-Price-Movement\Data.cpp(146,63): error C3867: 'Data::write_data2': non-standard syntax; use '&' to create a pointer to member
+C:\Users\praxs\OneDrive - nyu.edu\Repositories\Stock-Price-Movement\Data.cpp(132,9): error C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
