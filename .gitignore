@@ -1,0 +1,17 @@
+# Ignore all files
+*
+
+# Except .gitignore, .cpp, .hpp, .md, .csv, .txt, .png files
+!.gitignore
+!*.cpp
+!*.hpp
+!*.md
+!*.csv
+!*.txt
+!*.png
+
+# Except LICENSE file
+!LICENSE
+
+# Even if they are in subdirectories
+!*/
