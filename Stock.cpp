@@ -1,5 +1,6 @@
 #include <vector>
 #include <iostream>
+#include <string>
 #include "Stock.hpp"
 
 using namespace std;
@@ -32,7 +33,7 @@ void Stock::SetEstimatedEPS(double estimated_eps) {
     estimated_eps_ = estimated_eps;
 }
 
-void Stock::SetActualEPS(double actual_eps) {
+void Stock::SetReportedEPS(double actual_eps) {
     actual_eps_ = actual_eps;
 }
 
@@ -40,13 +41,17 @@ void Stock::SetSurprise(double surprise) {
     surprise_ = surprise;
 }
 
-void Stock::SetStartDateIndex(int start_date_index) {
-    start_date_index_ = start_date_index;
+void Stock::SetSurprisePercent(double surprise_pct) {
+    surprise_pct_ = surprise_pct;
 }
 
-void Stock::SetStartDate(string start_date) {
-    start_date_ = start_date;
-}
+//void Stock::SetStartDateIndex(int start_date_index) {
+//    start_date_index_ = start_date_index;
+//}
+
+//void Stock::SetDayZero(string day_zero) {
+//    day_zero_ = day_zero;
+//}
 
 void Stock::SetEndDate(string end_date) {
     end_date_ = end_date;
@@ -80,7 +85,7 @@ double Stock::GetEstimatedEPS() const {
     return estimated_eps_;
 }
 
-double Stock::GetActualEPS() const {
+double Stock::GetReportedEPS() const {
     return actual_eps_;
 }
 
@@ -88,13 +93,17 @@ double Stock::GetSurprise() const {
     return surprise_;
 }
 
-int Stock::GetStartDateIndex() const {
-    return start_date_index_;
+double Stock::GetSurprisePercent() const {
+    return surprise_pct_;
 }
 
-string Stock::GetStartDate() const {
-    return start_date_;
-}
+//int Stock::GetStartDateIndex() const {
+//    return start_date_index_;
+//}
+
+//string Stock::GetDayZero() const {
+//    return day_zero_;
+//}
 
 string Stock::GetEndDate() const {
     return end_date_;
@@ -109,16 +118,15 @@ void print(std::vector<double> const& item) {
 }
 
 ostream& operator<<(ostream& os, Stock& stock) {
-    os << "Start Date Index: " << stock.GetStartDateIndex() << endl;
+    //os << "Start Date Index: " << stock.GetStartDateIndex() << endl;
     os << "Ticker: " << stock.GetTicker() << endl;
     os << "Group: " << stock.GetGroup() << endl;
-    os << "Start Date: " << stock.GetStartDate() << endl;
+    os << "Start Date (Day 0): " << stock.GetDayZero() << endl;
     os << "End Date: " << stock.GetEndDate() << endl;
     os << "Announcement Date: " << stock.GetAnnounceDate() << endl;
     os << "Estimated Earning Per Share: " << stock.GetEstimatedEPS() << endl;
-    os << "Actual Earning Per Share: " << stock.GetActualEPS() << endl;
+    os << "Actual Earning Per Share: " << stock.GetEstimatedEPS() << endl;
     os << "Surprise: " << stock.GetSurprise() << endl;
-    cout << " \n" << endl;
     os << "Adjusted Close Price: " << endl;
     print(stock.GetAdjustedClose());
     os << "Return: " << endl;
