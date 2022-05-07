@@ -3,16 +3,29 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include <thread>
 #include "stocks.hpp"
 #include "bootstrap.hpp"
 
 using namespace std;
 
-int main()
-{
-
+void execute_sampling_iteration(int thread_id, vector<vector<double>>& price, vector<double>& iwv, map<int, vector<vector<double>>>& thread_res) {
     Bootstrap trial;
 
+    vector<vector<double>> res_ar = trial.CalculateAR(price, iwv);
+
+    vector<double> res_aar = trial.CalculateAAR(res_ar);
+
+    vector<double> res_caar = trial.CalculateCAAR(res_aar);
+
+    vector<vector<double>> res;
+    res.push_back(res_aar);
+    res.push_back(res_caar);
+    thread_res[thread_id] = res;
+}
+
+int main()
+{
     vector<vector<double>> price;
 
     vector<double> demo_stock;
@@ -39,10 +52,13 @@ int main()
     iwv.push_back(1);
     iwv.push_back(1);
 
-    vector<vector<double>> res_ar = trial.CalculateAR(price, iwv);
+    map<int, vector<vector<double>>> thread_res;
 
-    vector<double> res_aar = trial.CalculateAAR(res_ar);
+    thread t1(execute_sampling_iteration, 1, price, iwv, thread_res);
 
-    vector<double> res_caar = trial.CalculateCAAR(res_aar);
+    t1.join();
 
+    cout << "result count: ", thread_res.size() << '\n';
+
+    return 0;
 }
