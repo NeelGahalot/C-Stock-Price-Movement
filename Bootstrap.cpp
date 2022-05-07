@@ -14,8 +14,31 @@
 #include "Vector.hpp"
 
 using namespace std;
+const char* cStockTickersFile = "Russell_1000_component_stocks.csv";
+const char* cIWVFile = "Russell_3000_Earnings_Announcements.csv";
 
-void Bootstrap::populateIWVVector(StockMap& stock_map) {
+void Bootstrap::populateTickerVector(vector<string>& tickers) {
+    ifstream fstream;
+    fstream.open(cStockTickersFile, ios::in);
+
+    string line, ticker, name;
+    int count = 0;
+
+    while (!fstream.eof()) {
+        getline(fstream, line);
+        stringstream sin(line);
+
+        getline(sin, ticker, ',');
+        getline(sin, name);
+        tickers.push_back(ticker);
+
+        count++;
+    }
+
+    cout << "Number of stocks successfully populated: " << count << endl << endl;
+}
+
+void Bootstrap::populateIWVVector(map<string, Stock>& stock_map) {
     ifstream fstream;
     fstream.open(cIWVFile, ios::in);
 
@@ -45,55 +68,37 @@ void Bootstrap::populateIWVVector(StockMap& stock_map) {
     cout << "IWV data populated successfully." << endl << endl;
 }
 
-void Bootstrap::populateSymbolVector(vector<string>& symbols) {
-    ifstream fstream;
-    fstream.open(cStockSymbolsFile, ios::in);
-
-    string line, name, symbol;
-    int count = 0;
-
-    while (!fstream.eof()) {
-        getline(fstream, line);
-        stringstream sin(line);
-
-        getline(sin, symbol, ',');
-        getline(sin, name);
-        symbols.push_back(symbol);
-
-        count++;
-    }
-
-    cout << "Number of stocks successfully populated: " << count << endl << endl;
-}
-
-void Bootstrap::SplitToGroups(vector<string>& title, vector<string>& miss, vector<string>& meet, vector<string>& beat) {
+void Bootstrap::SplitToGroups(vector<string>& title, vector<string>& beat, vector<string>& miss, vector<string>& meet) {
     int msize = title.size() / 3;
 
     copy(title.begin(), title.begin() + msize, back_inserter(miss));
     copy(title.begin() + msize, title.begin() + 2 * msize, back_inserter(meet));
     copy(title.begin() + 2 * msize, title.begin() + title.size(), back_inserter(beat));
 
-    cout << "Stocks have been seperated to different groups" << endl << endl;
+    cout << "Stocks have been seperated to different groups." << endl << endl;
 }
 
-vector<Vector> GetAR(int N, vector<vector<string>> vec, int number_of_samples, map<string, Vector> ar_table) {
+vector<Vector> Bootstrap::GetAR(int n, vector<vector<string>> vec, map<string, Vector> ar_table) {
     map<string, Vector>::iterator itr;
     vector<vector<double>> AR;
+    int number_of_samples = Bootstrap::GetSamples();
 
     for (int i = 0; i < number_of_samples; i++) {
-        itr = ar_table.find(vec[N][i]);
+        itr = ar_table.find(vec[n][i]);
 
         if (itr != ar_table.end())
             AR.push_back(itr->second);
         else
-            cout << vec[N][i] << "could not be found." << endl << endl;
+            cout << vec[n][i] << "could not be found." << endl << endl;
     }
 
     return AR;
 }
 
-Vector GetAAR(vector<Vector> vec, int number_of_dates, int number_of_samples) {
+Vector Bootstrap::GetAAR(vector<Vector> vec) {
     vector<double> AAR;
+    int number_of_dates = Bootstrap::GetDates();
+    int number_of_samples = Bootstrap::GetSamples();
 
     for (int i = 0; i < number_of_dates; i++) {
         double sum = 0;
@@ -108,9 +113,10 @@ Vector GetAAR(vector<Vector> vec, int number_of_dates, int number_of_samples) {
     return AAR;
 }
 
-Vector GetCAAR(Vector vec, int number_of_dates) {
+Vector Bootstrap::GetCAAR(Vector vec) {
     Vector CAAR;
     double caar = 0.0;
+    int number_of_dates = Bootstrap::GetDates();
 
     for (int i = 0; i < number_of_dates; i++) {
         caar += vec[i];
@@ -120,9 +126,11 @@ Vector GetCAAR(Vector vec, int number_of_dates) {
     return CAAR;
 }
 
-Vector CalculateAvg(vector<Vector> vec, int number_of_dates, int resample_times) {
+Vector Bootstrap::CalculateAvg(vector<Vector> vec) {
     Vector AVG;
     double res = 0.0;
+    int resample_times = Bootstrap::GetResamples();
+    int number_of_dates = Bootstrap::GetDates();
 
     for (int i = 0; i < number_of_dates; i++) {
         for (int j = 0; j < resample_times; j++) {
@@ -135,10 +143,12 @@ Vector CalculateAvg(vector<Vector> vec, int number_of_dates, int resample_times)
     return AVG;
 }
 
-Vector CalculateStd(vector<Vector> vec, Vector avg, int number_of_dates, int resample_times) {
+Vector Bootstrap::CalculateStd(vector<Vector> vec, Vector avg) {
     Vector STD;
     double res = 0.0;
     double mean = 0.0;
+    int resample_times = Bootstrap::GetResamples();
+    int number_of_dates = Bootstrap::GetDates();
 
     for (int i = 0; i < number_of_dates; i++) {
         mean = avg[i];
@@ -154,7 +164,7 @@ Vector CalculateStd(vector<Vector> vec, Vector avg, int number_of_dates, int res
     return STD;
 }
 
-vector<Vector> Calculate(vector<vector<string>> vec, int number_of_samples, int number_of_dates, int resample_times, map<string, Vector> ar_table) {
+vector<Vector> Bootstrap::CalculateAll(vector<vector<string>> vec, map<string, Vector> ar_table) {
     vector<Vector> result;
     vector<Vector> AAR_pop;
     vector<Vector>CAAR_pop;
@@ -163,19 +173,21 @@ vector<Vector> Calculate(vector<vector<string>> vec, int number_of_samples, int 
     Vector STD_AAR;
     Vector STD_CAAR;
 
+    int resample_times = Bootstrap::GetResamples();
+
     for (int n = 0; n < resample_times; n++) {
-        vector<Vector> AR = GetAR(n, vec, number_of_samples, ar_table);
-        Vector AAR = GetAAR(AR, number_of_dates, number_of_samples);
-        Vector CAAR = GetCAAR(AAR, number_of_dates);
+        vector<Vector> AR = Bootstrap::GetAR(n, vec, ar_table);
+        Vector AAR = Bootstrap::GetAAR(AR);
+        Vector CAAR = Bootstrap::GetCAAR(AAR);
 
         AAR_pop.push_back(AAR);
         CAAR_pop.push_back(CAAR);
     }
 
-    AVG_AAR = CalculateAvg(AAR_pop, number_of_dates, resample_times);
-    AVG_CAAR = CalculateAvg(CAAR_pop, number_of_dates, resample_times);
-    STD_AAR = CalculateStd(AAR_pop, AVG_AAR, number_of_dates, resample_times);
-    STD_CAAR = CalculateStd(CAAR_pop, AVG_CAAR, number_of_dates, resample_times);
+    AVG_AAR = Bootstrap::CalculateAvg(AAR_pop);
+    AVG_CAAR = Bootstrap::CalculateAvg(CAAR_pop);
+    STD_AAR = Bootstrap::CalculateStd(AAR_pop, AVG_AAR);
+    STD_CAAR = Bootstrap::CalculateStd(CAAR_pop, AVG_CAAR);
 
     result.push_back(AVG_AAR);
     result.push_back(AVG_CAAR);
@@ -188,11 +200,11 @@ vector<Vector> Calculate(vector<vector<string>> vec, int number_of_samples, int 
 vector<string> Bootstrap::Resample(vector<string> vec) {
     int len = vec.size();
     int index = 0;
-
-    vector<string> result;
     int count = 0;
+    int number_of_samples = Bootstrap::GetSamples();
+    vector<string> result;
 
-    while (count < number_of_samples_) {
+    while (count < number_of_samples) {
 
         count += 1;
         index = rand() % len;
@@ -203,7 +215,9 @@ vector<string> Bootstrap::Resample(vector<string> vec) {
     return result;
 }
 
-void Bootstrap::ResampleVector(vector<vector<string>>& vec, vector<string>vec2, int resample_times) {
+void Bootstrap::ResampleVector(vector<vector<string>>& vec, vector<string>& vec2) {
+    int resample_times = Bootstrap::GetResamples();
+
     for (int i = 0; i < resample_times; i++) {
         vector<string> sample = Resample(vec2);
         vec.push_back(sample);
@@ -212,57 +226,107 @@ void Bootstrap::ResampleVector(vector<vector<string>>& vec, vector<string>vec2, 
     cout << "Resampling group successfull." << endl << endl;
 }
 
-void Bootstrap::GetHistoricalPrices(int N, map<string, string> symbol_date_map, map<string, Vector>& price_map, map<string, Vector>& benchmark_map, map<string, map<string, double>>& date_price_map, map<string, double>& iwv_date_map) {
-    map<string, string>::iterator symbol_itr = symbol_date_map.begin();
+void Bootstrap::GetHistoricalPrices(map<string, string> ticker_date_map, map<string, Vector>& price_map, map<string, Vector>& benchmark_map, map<string, map<string, double>>& date_price_map, map<string, double>& iwv_date_map) {
+    //map<string, string>::iterator ticker_itr = ticker_date_map.begin();
 
-    for (; symbol_itr != symbol_date_map.end(); symbol_itr++)
-    {
-        string symbol = symbol_itr->first;
-        string date = symbol_itr->second;
+    for (auto ticker_itr = ticker_date_map.begin(); ticker_itr != ticker_date_map.end(); ticker_itr++) {
+        string ticker = ticker_itr->first;
+        string date = ticker_itr->second;
 
-        map<string, double>::iterator itr = date_price_map[symbol].find(date);
+        Vector adj_close;
+        Vector benchmark;
+
+        //map<string, double>::iterator itr = date_price_map[ticker].find(date);
+        auto itr = date_price_map[ticker].find(date);
         // if the date zero is not found, return empty
-        if (itr == date_price_map[symbol].end()) {
-            cout << symbol + " day zero is not found!" << endl;
+        if (itr == date_price_map[ticker].end()) {
+            cout << ticker + " day zero is not found!" << endl;
             continue;
         }
 
-        for (int i = 0; i < N; i++) {
-            //if the symbol doesn't have +N days, return end
-            if (itr == date_price_map[symbol].end()) {
+        for (int i = 0; i < N_; i++) {
+            //if the ticker doesn't have +N days, return end
+            if (itr == date_price_map[ticker].end())
                 break;
-            }
             itr++;
         }
 
-        map<string, double>::iterator end_itr = itr;
-        if (itr != date_price_map[symbol].end()) {
+        // map<string, double>::iterator end_itr = itr;
+        auto end_itr = itr;
+        if (itr != date_price_map[ticker].end())
             end_itr++;
-        }
 
         //reset itr
-        itr = date_price_map[symbol].find(date);
-        for (int i = 0; i < N; i++) {
-            //if the symbol doesn't have -N days, return begin
-            if (itr == date_price_map[symbol].begin()) {
+        itr = date_price_map[ticker].find(date);
+        for (int i = 0; i < N_; i++) {
+            //if the ticker doesn't have -N days, return begin
+            if (itr == date_price_map[ticker].begin())
                 break;
-            }
             itr--;
         }
 
-        Vector adjClose;
-        Vector benchmark;
         while (itr != end_itr) {
-            adjClose.push_back(itr->second);
+            adj_close.push_back(itr->second);
             benchmark.push_back(iwv_date_map[itr->first]);
             itr++;
         }
 
-        price_map[symbol] = adjClose;
-        benchmark_map[symbol] = benchmark;
+        price_map[ticker] = adj_close;
+        benchmark_map[ticker] = benchmark;
     }
+}
+
+Vector Bootstrap::CalculateReturn(Vector V) {
+    int size = (int)V.size();
+    Vector result;
+
+    for (int i = 0; i < size - 1; i++)
+        result.push_back((V[i + 1] - V[i]) / V[i]);
+
+    return result;
+}
+
+Vector Bootstrap::CalculateCumReturn(Vector V) {
+    int size = (int)V.size();
+    Vector result;
+    double cumsum = 0.0;
+
+    for (int i = 0; i < size; i++) {
+        cumsum += V[i];
+        result.push_back(cumsum);
+    }
+
+    return result;
 }
 
 int Bootstrap::GetN() const {
     return number_of_samples_;
+}
+
+int Bootstrap::GetDates() const {
+    return number_of_dates_;
+}
+
+int Bootstrap::GetSamples() const {
+    return number_of_samples_;
+}
+
+int Bootstrap::GetResamples() const {
+    return resample_times_;
+}
+
+void Bootstrap::SetN(int N) {
+    N_ = N;
+}
+
+void Bootstrap::SetDates(int number_of_dates) {
+    number_of_dates_ = number_of_dates;
+}
+
+void Bootstrap::SetSamples(int number_of_samples) {
+    number_of_samples_ = number_of_samples;
+}
+
+void Bootstrap::SetResamples(int resample_times) {
+    resample_times_ = resample_times;
 }

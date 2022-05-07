@@ -1,20 +1,21 @@
-#include <vector>
 #include <iostream>
 #include <string>
+#include <vector>
 #include "Stock.hpp"
+#include "Vector.hpp"
 
 using namespace std;
 
-void Stock::SetAdjustedClose(vector<double> adjusted_close) {
+void Stock::SetAdjustedClose(Vector adjusted_close) {
     adjusted_close_ = adjusted_close;
 }
 
-void Stock::SetReturn(double return_val) {
-    return_.push_back(return_val);
+void Stock::SetDailyPrices(Vector daily_prices) {
+    daily_prices_= daily_prices;
 }
 
-void Stock::SetAbnormalReturn(double abnormal_return) {
-    abnormal_return_.push_back(abnormal_return);
+void Stock::SetCumDailyReturns(Vector cum_daily_returns) {
+    cum_daily_returns_ = cum_daily_returns;
 }
 
 void Stock::SetTicker(string ticker) {
@@ -45,71 +46,55 @@ void Stock::SetSurprisePercent(double surprise_pct) {
     surprise_pct_ = surprise_pct;
 }
 
-//void Stock::SetStartDateIndex(int start_date_index) {
-//    start_date_index_ = start_date_index;
-//}
-
-//void Stock::SetDayZero(string day_zero) {
-//    day_zero_ = day_zero;
-//}
-
 void Stock::SetEndDate(string end_date) {
     end_date_ = end_date;
 }
 
-vector<double> Stock::GetAdjustedClose() const {
+Vector Stock::GetAdjustedClose() {
     return adjusted_close_;
 }
 
-vector<double> Stock::GetReturn() const {
-    return return_;
+Vector Stock::GetDailyPrices() {
+    return daily_prices_;
 }
 
-vector<double> Stock::GetAbnormalReturn() const {
-    return abnormal_return_;
+Vector Stock::GetCumDailyReturns() {
+    return cum_daily_returns_;
 }
 
-string Stock::GetTicker() const {
+string Stock::GetTicker() {
     return ticker_;
 }
 
-string Stock::GetGroup() const {
+string Stock::GetGroup() {
     return group_;
 }
 
-string Stock::GetAnnounceDate() const {
+string Stock::GetAnnounceDate() {
     return announce_date_;
 }
 
-double Stock::GetEstimatedEPS() const {
-    return estimated_eps_;
-}
-
-double Stock::GetReportedEPS() const {
-    return actual_eps_;
-}
-
-double Stock::GetSurprise() const {
-    return surprise_;
-}
-
-double Stock::GetSurprisePercent() const {
-    return surprise_pct_;
-}
-
-//int Stock::GetStartDateIndex() const {
-//    return start_date_index_;
-//}
-
-//string Stock::GetDayZero() const {
-//    return day_zero_;
-//}
-
-string Stock::GetEndDate() const {
+string Stock::GetEndDate() {
     return end_date_;
 }
 
-void print(std::vector<double> const& item) {
+double Stock::GetEstimatedEPS() {
+    return estimated_eps_;
+}
+
+double Stock::GetReportedEPS() {
+    return actual_eps_;
+}
+
+double Stock::GetSurprise() {
+    return surprise_;
+}
+
+double Stock::GetSurprisePercent() {
+    return surprise_pct_;
+}
+
+void print(Vector const& item) {
     for (int i = 0; i < item.size(); i++)
     {
         std::cout << item.at(i) << ' ';
@@ -118,21 +103,20 @@ void print(std::vector<double> const& item) {
 }
 
 ostream& operator<<(ostream& os, Stock& stock) {
-    //os << "Start Date Index: " << stock.GetStartDateIndex() << endl;
     os << "Ticker: " << stock.GetTicker() << endl;
     os << "Group: " << stock.GetGroup() << endl;
-    os << "Start Date (Day 0): " << stock.GetDayZero() << endl;
-    os << "End Date: " << stock.GetEndDate() << endl;
     os << "Announcement Date: " << stock.GetAnnounceDate() << endl;
+    os << "End Date: " << stock.GetEndDate() << endl;
     os << "Estimated Earning Per Share: " << stock.GetEstimatedEPS() << endl;
     os << "Actual Earning Per Share: " << stock.GetEstimatedEPS() << endl;
-    os << "Surprise: " << stock.GetSurprise() << endl;
+    os << "Earning Per Share Surprise: " << stock.GetSurprise() << endl;
+    os << "Earning Per Share Surprise %: " << stock.GetSurprisePercent() << endl;
     os << "Adjusted Close Price: " << endl;
     print(stock.GetAdjustedClose());
-    os << "Return: " << endl;
-    print(stock.GetReturn());
-    os << "Abnormal Return: " << endl;
-    print(stock.GetAbnormalReturn());
+    os << "Daily Prices: " << endl;
+    print(stock.GetDailyPrices());
+    os << "Cumulative Daily Returns: " << endl;
+    print(stock.GetCumDailyReturns());
 
     return os;
 }

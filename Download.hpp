@@ -28,8 +28,10 @@ void* myrealloc(void* ptr, size_t size) {
 int write_data2(void* ptr, size_t size, size_t nmemb, void* data) {
 	size_t realsize = size * nmemb;
 	struct MemoryStruct* mem = (struct MemoryStruct*)data;
+
 	if ((mem->size + realsize) >= mem->total_size)
 		mem->memory = (char*)myrealloc(mem->memory, mem->size + realsize + 1);
+
 	if (mem->memory) {
 		memcpy(&(mem->memory[mem->size]), ptr, realsize);
 		mem->size += realsize;
@@ -125,13 +127,13 @@ int ExtractIWVData(map<string, double>& iwv_date_map) {
 	return 0;
 }
 
-int ExtractStockData(map<string, string> symbol_date_map, map<string, map<string, double>>& date_price_map) {
+int ExtractStockData(map<string, string> ticker_date_map, map<string, map<string, double>>& date_price_map) {
 	string start_date = "2021-04-01";
 	string end_date = "2021-06-30";
 
 	int count = 0;
-	int length = symbol_date_map.size();
-	symbol_date_map["IWB"] = start_date;
+	int length = ticker_date_map.size();
+	ticker_date_map["IWV"] = start_date;
 
 	// declaration of an object CURL
 	CURL* handle;
@@ -156,8 +158,9 @@ int ExtractStockData(map<string, string> symbol_date_map, map<string, map<string
 		data.size = 0;
 		data.total_size = 0;
 
-		map<string, string>::iterator itr = symbol_date_map.begin();
-		for (; itr != symbol_date_map.end(); itr++) {
+		map<string, string>::iterator itr = ticker_date_map.begin();
+
+		for (; itr != ticker_date_map.end(); itr++) {
 			data.size = 0;
 			memset(data.memory, '\0', data.total_size);
 

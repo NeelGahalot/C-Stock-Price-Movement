@@ -20,6 +20,7 @@ void Plot(vector<vector<Vector>> calculation_results) {
     int i;
 
     gnuplotPipe = _popen("C:\\PROGRA~1\\gnuplot\\bin\\gnuplot.exe", "w");
+
     if (gnuplotPipe) {
         fprintf(gnuplotPipe, "plot \"%s\" with lines, \"%s\" with lines, \"%s\" with lines\n", tempDataFileName1, tempDataFileName2, tempDataFileName3);
         fflush(gnuplotPipe);

@@ -15,36 +15,33 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Orig\Vector.hpp">
+    <ClInclude Include="Bootstrap.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Orig\Bootstrap.hpp">
+    <ClInclude Include="Download.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Orig\calculation.hpp">
+    <ClInclude Include="Stock.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Orig\Data.hpp">
+    <ClInclude Include="Vector.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Orig\Download.hpp">
+    <ClInclude Include="Plot.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Orig\Vector.cpp">
+    <ClCompile Include="Bootstrap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Orig\Bootstrap.cpp">
+    <ClCompile Include="Stock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Orig\calculation.cpp">
+    <ClCompile Include="Vector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Orig\Data.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Orig\main.cpp">
+    <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
