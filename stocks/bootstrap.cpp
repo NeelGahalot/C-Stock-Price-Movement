@@ -8,7 +8,6 @@
 
 using namespace std;
 
-
 /*
 class attribute
     int stocks_in_group_ = 80;
@@ -16,7 +15,7 @@ class attribute
     int N_;
 */
 
-vector<vector<double>> Bootstrap::CalculateAR(vector<vector<double>>& price, vector<vector<double>>& IWVreturn) {
+vector<vector<double>> Bootstrap::CalculateAR(vector<vector<double>>& price, vector<double>& IWVreturn) {
 	// price: price vecter around annoucement date with 80 stocks
 	// length of vector: 2N+1 or less if not enough date
 	// stocks_in_group_: 80

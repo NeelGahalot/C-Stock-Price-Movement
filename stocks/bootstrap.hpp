@@ -33,12 +33,12 @@ public:
         }
     }
 
-    vector<vector<double>> Bootstrap::CalculateAR(vector<vector<double>>& price, vector<vector<double>>& IWVreturn);
-    vector<double> Bootstrap::CalculateAAR(vector<vector<double>>& ar);
-    vector<double> Bootstrap::CalculateCAAR(vector<double>& AAR);
-    vector<double> Bootstrap::finalmean(vector<vector<double>>& bootres);
-    vector<double> Bootstrap::finalsd(vector<vector<double>>& bootres, vector<double>& avg);
-    vector<vector<double>> Bootstrap::finalCalculation(vector<vector<double>>& calAAR, vector<vector<double>>& calCAAR);
+    vector<vector<double>> CalculateAR(vector<vector<double>>& price, vector<double>& IWVreturn);
+    vector<double> CalculateAAR(vector<vector<double>>& ar);
+    vector<double> CalculateCAAR(vector<double>& AAR);
+    vector<double> finalmean(vector<vector<double>>& bootres);
+    vector<double> finalsd(vector<vector<double>>& bootres, vector<double>& avg);
+    vector<vector<double>> finalCalculation(vector<vector<double>>& calAAR, vector<vector<double>>& calCAAR);
     // void CheckSize(StockMap& stock_list);
     //int GetN();
 };
