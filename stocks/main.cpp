@@ -18,22 +18,22 @@ double fRand(double fMin, double fMax)
 
 void execute_sampling_iteration(int thread_id, vector<vector<double>>& price, vector<double>& iwv, map<int, vector<vector<double>>>& thread_res) {
     Bootstrap trial;
-	cout << "D0" << endl;
+	//cout << "D0" << endl;
 
     vector<vector<double>> res_ar = trial.CalculateAR(price, iwv);
-	cout << "D1" << endl;
+	//cout << "D1" << endl;
 
     vector<double> res_aar = trial.CalculateAAR(res_ar);
-	cout << "D2" << endl;
+	//cout << "D2" << endl;
 
     vector<double> res_caar = trial.CalculateCAAR(res_aar);
-	cout << "D3" << endl;
+	//cout << "D3" << endl;
 
     vector<vector<double>> res;
     res.push_back(res_aar);
     res.push_back(res_caar);
     thread_res[thread_id] = res;
-	cout << "D4: " << thread_res.size() << endl;
+	//cout << "D4: " << thread_res.size() << endl;
 }
 
 StockDayData generate_random_stock_day_data() {
@@ -86,9 +86,11 @@ int main()
 	}
 
     vector<vector<double>> price;
-	for (int i = 0; i < 80; i++) {
+	int stockCount = stockList.size();
+	for (int i = 0; i < stockCount; i++) {
 		vector<double> priceList;
-		for (int j = 0; j < stockList[j].day_data_list.size(); j++)
+		int dayDataCount = stockList[i].day_data_list.size();
+		for (int j = 0; j < dayDataCount; j++)
 			priceList.push_back(stockList[i].day_data_list[j].adj_close);
 		price.push_back(priceList);
 	}
@@ -102,12 +104,11 @@ int main()
 
     map<int, vector<vector<double>>> thread_res;
 
-	execute_sampling_iteration(1, price, iwv, thread_res);
-
-    //thread t1(execute_sampling_iteration, 1, price, iwv, thread_res);
-    //t1.join();
-
-    cout << "result count: " << thread_res.size() << '\n';
+    thread t1(execute_sampling_iteration, 1, ref(price), ref(iwv), ref(thread_res));
+    t1.join();
+   
+	cout << "result count: " << thread_res.size() << '\n';
 
     return 0;
 }
+

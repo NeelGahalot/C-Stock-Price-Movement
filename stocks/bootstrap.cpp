@@ -61,7 +61,8 @@ vector<double> Bootstrap::CalculateCAAR(vector<double>& AAR) {
     vector<double> CAAR;
     CAAR.resize(AAR.size());
     CAAR[0] = AAR[0];
-    for (int i = 1; i < AAR.size(); i++)
+	int AAR_size = AAR.size();
+    for (int i = 1; i < AAR_size; i++)
     {
         CAAR[i] = CAAR[i-1] + AAR[i];
     }
