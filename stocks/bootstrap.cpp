@@ -26,7 +26,7 @@ vector<vector<double>> Bootstrap::CalculateAR(vector<vector<double>> price, vect
 	for (int i = 0; i < stocks_in_group_; i++)
 	{
 		int T = price[i].size();  //T shoulds be 2N+1 or the number of all available dates
-		for (int t; t < T-1; t++)
+		for (int t=0; t < T-1; t++)
 		{
 			price[i][t] = price[i][t + 1] / price[i][t] - 1;
 			price[i][t] = price[i][t] - IWVreturn[t];
@@ -45,7 +45,7 @@ vector<double> Bootstrap::CalculateAAR(vector<vector<double>>& ar) {
     vector<double> AAR;
 	AAR.resize(stocks_in_group_);
 
-    for (int t; t < T - 1; t++)
+    for (int t=0; t < T - 1; t++)
 	{
 		sum = 0;
 		for (int i = 0; i < stocks_in_group_; i++)
@@ -62,7 +62,8 @@ vector<double> Bootstrap::CalculateCAAR(vector<double>& AAR) {
     vector<double> CAAR;
     CAAR.resize(AAR.size());
     CAAR[0] = AAR[0];
-    for (int i = 1; i < AAR.size(); i++)
+	int AAR_size = AAR.size();
+    for (int i = 1; i < AAR_size; i++)
     {
         CAAR[i] = CAAR[i-1] + AAR[i];
     }
