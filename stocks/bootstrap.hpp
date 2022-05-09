@@ -33,7 +33,7 @@ public:
         }
     }
 
-    vector<vector<double>> CalculateAR(vector<vector<double>>& price, vector<double>& IWVreturn);
+    vector<vector<double>> CalculateAR(vector<vector<double>> price, vector<double> IWVreturn);
     vector<double> CalculateAAR(vector<vector<double>>& ar);
     vector<double> CalculateCAAR(vector<double>& AAR);
     vector<double> finalmean(vector<vector<double>>& bootres);

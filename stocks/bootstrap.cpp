@@ -3,7 +3,8 @@
 #include <fstream>
 #include <vector>
 #include <map>
-#include "Stock.hpp"
+#include <cmath>
+#include "stocks.hpp"
 #include "bootstrap.hpp"
 
 using namespace std;
@@ -15,7 +16,7 @@ class attribute
     int N_;
 */
 
-vector<vector<double>> Bootstrap::CalculateAR(vector<vector<double>>& price, vector<double>& IWVreturn) {
+vector<vector<double>> Bootstrap::CalculateAR(vector<vector<double>> price, vector<double> IWVreturn) {
 	// price: price vecter around annoucement date with 80 stocks
 	// length of vector: 2N+1 or less if not enough date
 	// stocks_in_group_: 80
@@ -34,7 +35,7 @@ vector<vector<double>> Bootstrap::CalculateAR(vector<vector<double>>& price, vec
 	}
 	//or create a new abnormal return matrix instead of replace
 
-    return price
+    return price;
 }
 
 vector<double> Bootstrap::CalculateAAR(vector<vector<double>>& ar) {
@@ -66,7 +67,7 @@ vector<double> Bootstrap::CalculateCAAR(vector<double>& AAR) {
         CAAR[i] = CAAR[i-1] + AAR[i];
     }
 
-    return CAAR
+    return CAAR;
 }
 
 vector<double> Bootstrap::finalmean(vector<vector<double>>& bootres){
@@ -105,7 +106,7 @@ vector<double> Bootstrap::finalsd(vector<vector<double>>& bootres, vector<double
 vector<vector<double>> Bootstrap::finalCalculation(vector<vector<double>>& calAAR, vector<vector<double>>& calCAAR){
     vector<vector<double>> result;
     vector<double> avg_AAR, avg_CAAR, sd_AAR, sd_CAAR;
-    double mu_AAR, mu_AAR, 
+    // double mu_AAR, mu_AAR, 
 
     avg_AAR = finalmean(calAAR);
     avg_CAAR = finalmean(calCAAR);
