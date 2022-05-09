@@ -13,6 +13,7 @@
 #include "Plot.hpp"
 #include "Stock.hpp"
 #include "Vector.hpp"
+#include <thread>
 
 using namespace std;
 
@@ -61,8 +62,29 @@ int main() {
     map<string, map<string, double>> date_price_map;
 
     ExtractIWVData(iwv_date_map, start_date, end_date);
+	cout << "------------------------ Stock data extraction ------------------------" << endl;
     //ExtractStockData(ticker_date_map, date_price_map);
-    ExtractStockData(stock_map, date_price_map, start_date, end_date);
+	int progress = 0;
+	const int thread_count = 7;
+	thread thread_list[thread_count];
+	int stock_count = stock_map.size();
+	cout << "Stock Count: " << stock_count << endl;
+	int r_start = 0,
+		r_size = (stock_count / thread_count)+1,
+		r_end = r_start + r_size;
+	for (int i = 0; i < thread_count; i++) {
+		r_end = min(r_end, (int)stock_count);
+		//ExtractStockData(stock_map, date_price_map, start_date, end_date, r_start, r_end, progress, stock_count);
+		thread_list[i] = thread(ExtractStockData, ref(stock_map), ref(date_price_map), ref(start_date), ref(end_date), r_start, r_end, ref(progress), ref(stock_count));
+		r_start += r_size;
+		r_end += r_size;
+		r_end = min(r_end, stock_count);
+	}
+	for (int i = 0; i < thread_count; i++) {
+		thread_list[i].join();
+	}
+    //ExtractStockData(stock_map, date_price_map, start_date, end_date, 0, stock_map.size(), progress);
+	cout << endl << "Stock data extraction complete." << endl << endl;
 
     vector<string> current_tickers;
     vector<string> valid_tickers;

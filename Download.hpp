@@ -130,15 +130,14 @@ int ExtractIWVData(map<string, double>& iwv_date_map, string& start_date, string
 }
 
 //int ExtractStockData(map<string, string> ticker_date_map, map<string, map<string, double>>& date_price_map) {
-int ExtractStockData(map<string, Stock> stock_map, map<string, map<string, double>>& date_price_map, string& start_date, string& end_date) {
+int ExtractStockData(map<string, Stock>& stock_map, map<string, map<string, double>>& date_price_map, string& start_date, string& end_date, int range_start, int range_end, int& progress, int& total_progress) {
 	//string start_date = "2020-05-01";//"2021-04-01";
 	//string end_date = "2021-11-30";//"2022-03-31";
 
-	int count = 0;
 	/*int length = ticker_date_map.size();
 	ticker_date_map["IWV"] = start_date;*/
 
-	int length = stock_map.size();
+	//int length = stock_map.size();
 
 	// declaration of an object CURL
 	CURL* handle;
@@ -163,10 +162,18 @@ int ExtractStockData(map<string, Stock> stock_map, map<string, map<string, doubl
 		data.size = 0;
 		data.total_size = 0;
 
-		cout << "------------------------ Stock data extraction ------------------------" << endl;
-
+		//cout << "------------------------ Stock data extraction ------------------------" << endl;
+		map<string, Stock>::iterator itr = stock_map.begin();
+		map<string, Stock>::iterator itr_end = stock_map.begin();
+		advance(itr_end, range_end);
+		cout << "Beginning: " << range_start << " - " << range_end << endl;
 		//for (auto itr = ticker_date_map.begin(); itr != ticker_date_map.end(); itr++) {
-		for (auto itr = stock_map.begin(); itr != stock_map.end(); itr++) {
+		for (advance(itr, range_start); itr != itr_end; itr++) {
+			progress += 1;
+
+			//if (count % (length / 10) == 0)
+				cout << "- - - - - - - - - - - - - - Downloading " << ceil((progress * 1.0 / total_progress) * 100) << "% - - - - - - - - - - - - - - \r";
+
 			data.size = 0;
 			memset(data.memory, '\0', data.total_size);
 
@@ -211,10 +218,7 @@ int ExtractStockData(map<string, Stock> stock_map, map<string, map<string, doubl
 				}
 			}
 
-			count += 1;
-
-			if (count % (length / 10) == 0)
-				cout << "- - - - - - - - - - - - - - Downloading " << ceil((count * 1.0 / length) * 100) << "% - - - - - - - - - - - - - - \r";
+			
 		}
 
 		free(data.memory);
@@ -232,7 +236,7 @@ int ExtractStockData(map<string, Stock> stock_map, map<string, map<string, doubl
 	// release resources acquired by curl_global_init()
 	curl_global_cleanup();
 
-	cout << endl << "Stock data extraction complete." << endl << endl;
+	//cout << endl << "Stock data extraction complete." << endl << endl;
 
 	return 0;
 }
