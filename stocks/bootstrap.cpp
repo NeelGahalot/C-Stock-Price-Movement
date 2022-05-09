@@ -71,48 +71,47 @@ vector<double> Bootstrap::CalculateCAAR(vector<double>& AAR) {
     return CAAR;
 }
 
-vector<double> Bootstrap::finalmean(vector<vector<double>>& bootres){
+vector<double> Bootstrap::finalmean(vector<vector<double>>& bootres, int samples){
     vector<double> avg;
     double mu = 0;
 
     int T = bootres[0].size();
     for (int t = 0; t < T; t++) {
-        for (int i = 0; i < samples_; i++) 
+        for (int i = 0; i < samples; i++) 
         {
             mu += bootres[i][t];
         }
-        mu = mu / samples_;
+        mu = mu / samples;
         avg.push_back(mu);
     }
     return avg;
 }
 
-vector<double> Bootstrap::finalsd(vector<vector<double>>& bootres, vector<double>& avg){
+vector<double> Bootstrap::finalsd(vector<vector<double>>& bootres, vector<double>& avg, int samples){
     vector<double> sd;
     double sigma = 0, mu = 0;
 
     int T = bootres[0].size();
     for (int t = 0; t < T; t++) {
         mu = avg[t];
-        for (int i = 0; i < samples_; i++) 
+        for (int i = 0; i < samples; i++) 
         {
             sigma += pow((bootres[i][t] - mu), 2);
         }
-        sigma = sqrt(sigma / samples_);
+        sigma = sqrt(sigma / samples);
         sd.push_back(sigma);
     }
     return sd;
 }
 
-vector<vector<double>> Bootstrap::finalCalculation(vector<vector<double>>& calAAR, vector<vector<double>>& calCAAR){
+vector<vector<double>> Bootstrap::finalCalculation(vector<vector<double>>& calAAR, vector<vector<double>>& calCAAR, int samples){
     vector<vector<double>> result;
     vector<double> avg_AAR, avg_CAAR, sd_AAR, sd_CAAR;
-    // double mu_AAR, mu_AAR, 
 
-    avg_AAR = finalmean(calAAR);
-    avg_CAAR = finalmean(calCAAR);
-    sd_AAR = finalsd(calAAR, avg_AAR);
-    sd_CAAR = finalsd(calCAAR, avg_CAAR);
+    avg_AAR = finalmean(calAAR, samples);
+    avg_CAAR = finalmean(calCAAR, samples);
+    sd_AAR = finalsd(calAAR, avg_AAR, samples);
+    sd_CAAR = finalsd(calCAAR, avg_CAAR, samples);
 
     result.push_back(avg_AAR);
     result.push_back(avg_CAAR);

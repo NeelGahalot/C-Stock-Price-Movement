@@ -16,8 +16,8 @@ double fRand(double fMin, double fMax)
 	return fMin + f * (fMax - fMin);
 }
 
-void execute_sampling_iteration(int thread_id, vector<vector<double>>& price, vector<double>& iwv, map<int, vector<vector<double>>>& thread_res) {
-    Bootstrap trial;
+void execute_sampling_iteration(int thread_id, int N, vector<vector<double>>& price, vector<double>& iwv, map<int, vector<vector<double>>>& thread_res) {
+	Bootstrap trial(N);
 	//cout << "D0" << endl;
 
     vector<vector<double>> res_ar = trial.CalculateAR(price, iwv);
@@ -80,6 +80,19 @@ vector<double> generate_stock_data() {
 
 int main()
 {
+	int N;
+	while (true) {
+		cout << "Enter value of N (30 - 60): " << endl;
+		cin >> N;
+
+		if ((N >= 30) && (N <= 60)) {
+			break;
+		}
+		else if (N < 30 || N > 60) {
+			cout << "Invalid value entered for N (30 - 60). Please retry..." << endl;
+		}
+	}
+
 	vector<Stock> stockList;
 	for (int i = 0; i < 80; i++) {
 		stockList.push_back(generate_random_stock(5));
@@ -103,10 +116,32 @@ int main()
     iwv.push_back(1);
 
     map<int, vector<vector<double>>> thread_res;
+	vector<thread> thread_list;
+	const int sampling_count = 2;
 
-    thread t1(execute_sampling_iteration, 1, ref(price), ref(iwv), ref(thread_res));
-    thread t2(execute_sampling_iteration, 1, ref(price), ref(iwv), ref(thread_res));
-    t1.join();
+	for (int i = 0; i < sampling_count; i++) {
+		thread_list.push_back(thread(execute_sampling_iteration, i, N, ref(price), ref(iwv), ref(thread_res)));
+	}
+
+	for (int i = 0; i < sampling_count; i++) {
+		thread_list[i].join();
+	}
+	vector<vector<double>> calAAR;
+	vector<vector<double>> calCAAR;
+	for (int i = 0; i < sampling_count; i++) {
+		calAAR.push_back(thread_res[i][0]);
+	}
+	for (int i = 0; i < sampling_count; i++) {
+		calCAAR.push_back(thread_res[i][1]);
+	}
+	Bootstrap trial(N);
+	vector<vector<double>> final_res = trial.finalCalculation(calAAR, calCAAR, sampling_count);
+	cout << "FINAL RESULT SIZE: " << final_res.size() << "x" << final_res[0].size() << endl;
+
+    //thread t1(execute_sampling_iteration, 1, N, ref(price), ref(iwv), ref(thread_res));
+    //thread t2(execute_sampling_iteration, 2, N, ref(price), ref(iwv), ref(thread_res));
+    //t1.join();
+	//t2.join();
 
 		// vector<vector<double>> res1 = thread_res[1];
 		// vector<vector<double>> res2 = thread_res[2];
@@ -116,7 +151,6 @@ int main()
 		// res2[0]; // sampling 2 res_aar
 		// res2[1]; // sampling 2 res_caar
    
-	  cout << "result count: " << thread_res.size() << '\n';
 
     return 0;
 }
