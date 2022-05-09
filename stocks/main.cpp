@@ -85,7 +85,7 @@ int main()
 		stockList.push_back(generate_random_stock(5));
 	}
 
-    vector<vector<double>> price;
+  vector<vector<double>> price;
 	int stockCount = stockList.size();
 	for (int i = 0; i < stockCount; i++) {
 		vector<double> priceList;
@@ -105,9 +105,18 @@ int main()
     map<int, vector<vector<double>>> thread_res;
 
     thread t1(execute_sampling_iteration, 1, ref(price), ref(iwv), ref(thread_res));
+    thread t2(execute_sampling_iteration, 1, ref(price), ref(iwv), ref(thread_res));
     t1.join();
+
+		// vector<vector<double>> res1 = thread_res[1];
+		// vector<vector<double>> res2 = thread_res[2];
+		// res1[0]; // sampling 1 res_aar
+		// res1[1]; // sampling 1 res_caar
+
+		// res2[0]; // sampling 2 res_aar
+		// res2[1]; // sampling 2 res_caar
    
-	cout << "result count: " << thread_res.size() << '\n';
+	  cout << "result count: " << thread_res.size() << '\n';
 
     return 0;
 }
