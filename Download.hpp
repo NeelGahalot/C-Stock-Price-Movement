@@ -42,9 +42,9 @@ int write_data2(void* ptr, size_t size, size_t nmemb, void* data) {
 	return realsize;
 }
 
-int ExtractIWVData(map<string, double>& iwv_date_map) {
-	string start_date = "2021-04-01";
-	string end_date = "2022-03-31";
+int ExtractIWVData(map<string, double>& iwv_date_map, string& start_date, string& end_date) {
+	//string start_date = "2020-05-01";//"2021-04-01";
+	//string end_date = "2021-11-30";//"2022-03-31";
 
 	// declaration of an object CURL
 	CURL* handle;
@@ -62,12 +62,14 @@ int ExtractIWVData(map<string, double>& iwv_date_map) {
 	if (handle)
 	{
 		string url_common = "https://eodhistoricaldata.com/api/eod/";
-		string api_token = "62686d23ea5b52.97340064";  // You must replace this API token with yours
+		string api_token = "61ad428d1d8d76.46544183"; //"62686d23ea5b52.97340064";  // You must replace this API token with yours
 
 		struct MemoryStruct data;
 		data.memory = NULL;
 		data.size = 0;
 		data.total_size = 0;
+
+		cout << "------------------------- IWV data extraction -------------------------" << endl;
 
 		string url_request = url_common + "IWV" + ".US?" + "from=" + start_date + "&to=" + end_date + "&api_token=" + api_token + "&period=d";
 		curl_easy_setopt(handle, CURLOPT_URL, url_request.c_str());
@@ -122,18 +124,21 @@ int ExtractIWVData(map<string, double>& iwv_date_map) {
 	// release resources acquired by curl_global_init()
 	curl_global_cleanup();
 
-	cout << "IWV data extraction complete." << endl << endl;
+	cout << "IWV data extraction completed successfully." << endl << endl;
 
 	return 0;
 }
 
-int ExtractStockData(map<string, string> ticker_date_map, map<string, map<string, double>>& date_price_map) {
-	string start_date = "2021-04-01";
-	string end_date = "2021-06-30";
+//int ExtractStockData(map<string, string> ticker_date_map, map<string, map<string, double>>& date_price_map) {
+int ExtractStockData(map<string, Stock> stock_map, map<string, map<string, double>>& date_price_map, string& start_date, string& end_date) {
+	//string start_date = "2020-05-01";//"2021-04-01";
+	//string end_date = "2021-11-30";//"2022-03-31";
 
 	int count = 0;
-	int length = ticker_date_map.size();
-	ticker_date_map["IWV"] = start_date;
+	/*int length = ticker_date_map.size();
+	ticker_date_map["IWV"] = start_date;*/
+
+	int length = stock_map.size();
 
 	// declaration of an object CURL
 	CURL* handle;
@@ -151,21 +156,23 @@ int ExtractStockData(map<string, string> ticker_date_map, map<string, map<string
 	if (handle)
 	{
 		string url_common = "https://eodhistoricaldata.com/api/eod/";
-		string api_token = "62686d23ea5b52.97340064";  // You must replace this API token with yours
+		string api_token = "61ad428d1d8d76.46544183"; //"62686d23ea5b52.97340064";  // You must replace this API token with yours
 
 		struct MemoryStruct data;
 		data.memory = NULL;
 		data.size = 0;
 		data.total_size = 0;
 
-		map<string, string>::iterator itr = ticker_date_map.begin();
+		cout << "------------------------ Stock data extraction ------------------------" << endl;
 
-		for (; itr != ticker_date_map.end(); itr++) {
+		//for (auto itr = ticker_date_map.begin(); itr != ticker_date_map.end(); itr++) {
+		for (auto itr = stock_map.begin(); itr != stock_map.end(); itr++) {
 			data.size = 0;
 			memset(data.memory, '\0', data.total_size);
 
 			string symbol = itr->first;
-			string date = itr->second;
+			//string date = itr->second;
+			//string date = itr->second.GetAnnounceDate();
 			string url_request = url_common + symbol + ".US?" + "from=" + start_date + "&to=" + end_date + "&api_token=" + api_token + "&period=d";
 			curl_easy_setopt(handle, CURLOPT_URL, url_request.c_str());
 
@@ -207,7 +214,7 @@ int ExtractStockData(map<string, string> ticker_date_map, map<string, map<string
 			count += 1;
 
 			if (count % (length / 10) == 0)
-				cout << "- - - - - Downloading " << (count * 1.0 / length) * 100 << "% - - - - -" << endl;
+				cout << "- - - - - - - - - - - - - - Downloading " << ceil((count * 1.0 / length) * 100) << "% - - - - - - - - - - - - - - \r";
 		}
 
 		free(data.memory);
@@ -225,7 +232,7 @@ int ExtractStockData(map<string, string> ticker_date_map, map<string, map<string
 	// release resources acquired by curl_global_init()
 	curl_global_cleanup();
 
-	cout << "Stock data extraction complete." << endl << endl;
+	cout << endl << "Stock data extraction complete." << endl << endl;
 
 	return 0;
 }

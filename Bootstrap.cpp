@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <time.h>
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -14,15 +15,17 @@
 #include "Vector.hpp"
 
 using namespace std;
-const char* cStockTickersFile = "Russell_1000_component_stocks.csv";
-const char* cIWVFile = "Russell_3000_Earnings_Announcements.csv";
+const char* cStockTickersFile = "Russell_3000_component_stocks.csv";
+const char* cIWVFile = "Russell3000EarningsAnnouncements.csv";
 
 void Bootstrap::populateTickerVector(vector<string>& tickers) {
     ifstream fstream;
-    fstream.open(cStockTickersFile, ios::in);
-
     string line, ticker, name;
     int count = 0;
+
+    fstream.open(cStockTickersFile, ios::in);
+    // Skip header row
+    getline(fstream, line);
 
     while (!fstream.eof()) {
         getline(fstream, line);
@@ -40,9 +43,12 @@ void Bootstrap::populateTickerVector(vector<string>& tickers) {
 
 void Bootstrap::populateIWVVector(map<string, Stock>& stock_map) {
     ifstream fstream;
-    fstream.open(cIWVFile, ios::in);
-
     string line, ticker, announce_date, end_date, estimated_eps, reported_eps, surprise, surprise_pct;
+    string type;
+
+    fstream.open(cIWVFile, ios::in);
+    // Skip header row
+    getline(fstream, line);
 
     while (!fstream.eof()) {
         getline(fstream, line);
@@ -57,8 +63,15 @@ void Bootstrap::populateIWVVector(map<string, Stock>& stock_map) {
         getline(sin, surprise_pct);
 
         stock_map[ticker].SetTicker(ticker);
+
+        type = "announce";
+        announce_date = FormatDate(announce_date, type);
         stock_map[ticker].SetAnnounceDate(announce_date);
+        
+        type = "end";
+        end_date = FormatDate(end_date, type);
         stock_map[ticker].SetEndDate(end_date);
+
         stock_map[ticker].SetEstimatedEPS(stod(estimated_eps));
         stock_map[ticker].SetReportedEPS(stod(reported_eps));
         stock_map[ticker].SetSurprise(stod(surprise));
@@ -75,7 +88,7 @@ void Bootstrap::SplitToGroups(vector<string>& title, vector<string>& beat, vecto
     copy(title.begin() + msize, title.begin() + 2 * msize, back_inserter(meet));
     copy(title.begin() + 2 * msize, title.begin() + title.size(), back_inserter(beat));
 
-    cout << "Stocks have been seperated to different groups." << endl << endl;
+    cout << endl << "Stocks successfully seperated to different groups." << endl << endl;
 }
 
 vector<Vector> Bootstrap::GetAR(int n, vector<vector<string>> vec, map<string, Vector> ar_table) {
@@ -222,59 +235,100 @@ void Bootstrap::ResampleVector(vector<vector<string>>& vec, vector<string>& vec2
         vector<string> sample = Resample(vec2);
         vec.push_back(sample);
     }
-
-    cout << "Resampling group successfull." << endl << endl;
 }
 
-void Bootstrap::GetHistoricalPrices(map<string, string> ticker_date_map, map<string, Vector>& price_map, map<string, Vector>& benchmark_map, map<string, map<string, double>>& date_price_map, map<string, double>& iwv_date_map) {
-    //map<string, string>::iterator ticker_itr = ticker_date_map.begin();
+//void Bootstrap::GetHistoricalPrices(map<string, string> ticker_date_map, map<string, Vector>& price_map, map<string, Vector>& benchmark_map, map<string, map<string, double>>& date_price_map, map<string, double>& iwv_date_map) {
+//    for (auto ticker_itr = ticker_date_map.begin(); ticker_itr != ticker_date_map.end(); ticker_itr++) {
+//        string ticker = ticker_itr->first;
+//        string date = ticker_itr->second;
+//
+//        Vector adj_close;
+//        Vector benchmark;
+//
+//        auto itr = date_price_map[ticker].find(date);
+//        // if the date zero is not found, return empty
+//        if (itr == date_price_map[ticker].end()) {
+//            cout << ticker + " day zero is not found!" << endl;
+//            continue;
+//        }
+//
+//        for (int i = 0; i < N_; i++) {
+//            //if the ticker doesn't have +N days, return end
+//            if (itr == date_price_map[ticker].end())
+//                break;
+//            itr++;
+//        }
+//
+//        auto end_itr = itr;
+//        if (itr != date_price_map[ticker].end())
+//            end_itr++;
+//
+//        //reset itr
+//        itr = date_price_map[ticker].find(date);
+//        for (int i = 0; i < N_; i++) {
+//            //if the ticker doesn't have -N days, return begin
+//            if (itr == date_price_map[ticker].begin())
+//                break;
+//            itr--;
+//        }
+//
+//        while (itr != end_itr) {
+//            adj_close.push_back(itr->second);
+//            benchmark.push_back(iwv_date_map[itr->first]);
+//            itr++;
+//        }
+//
+//        price_map[ticker] = adj_close;
+//        benchmark_map[ticker] = benchmark;
+//    }
+//}
 
-    for (auto ticker_itr = ticker_date_map.begin(); ticker_itr != ticker_date_map.end(); ticker_itr++) {
-        string ticker = ticker_itr->first;
-        string date = ticker_itr->second;
+void Bootstrap::GetHistoricalPrices(map<string, Stock>& stock_map, map<string, map<string, double>>& date_price_map, map<string, Vector>& benchmark_map, map<string, double>& iwv_date_map) {
+    for (auto itr = stock_map.begin(); itr != stock_map.end(); itr++) {
+        string ticker = itr->first;
+        string date = itr->second.GetAnnounceDate();
 
         Vector adj_close;
         Vector benchmark;
 
-        //map<string, double>::iterator itr = date_price_map[ticker].find(date);
-        auto itr = date_price_map[ticker].find(date);
+        auto itr2 = date_price_map[ticker].find(date);
         // if the date zero is not found, return empty
-        if (itr == date_price_map[ticker].end()) {
+        if (itr2 == date_price_map[ticker].end()) {
             cout << ticker + " day zero is not found!" << endl;
             continue;
         }
 
         for (int i = 0; i < N_; i++) {
             //if the ticker doesn't have +N days, return end
-            if (itr == date_price_map[ticker].end())
+            if (itr2 == date_price_map[ticker].end())
                 break;
-            itr++;
+            itr2++;
         }
 
-        // map<string, double>::iterator end_itr = itr;
-        auto end_itr = itr;
-        if (itr != date_price_map[ticker].end())
+        auto end_itr = itr2;
+        if (itr2 != date_price_map[ticker].end())
             end_itr++;
 
         //reset itr
-        itr = date_price_map[ticker].find(date);
+        itr2 = date_price_map[ticker].find(date);
         for (int i = 0; i < N_; i++) {
             //if the ticker doesn't have -N days, return begin
-            if (itr == date_price_map[ticker].begin())
+            if (itr2 == date_price_map[ticker].begin())
                 break;
-            itr--;
+            itr2--;
         }
 
-        while (itr != end_itr) {
-            adj_close.push_back(itr->second);
-            benchmark.push_back(iwv_date_map[itr->first]);
-            itr++;
+        while (itr2 != end_itr) {
+            adj_close.push_back(itr2->second);
+            benchmark.push_back(iwv_date_map[itr2->first]);
+            itr2++;
         }
 
-        price_map[ticker] = adj_close;
+        itr->second.SetDailyPrices(adj_close);
         benchmark_map[ticker] = benchmark;
     }
 }
+
 
 Vector Bootstrap::CalculateReturn(Vector V) {
     int size = (int)V.size();
@@ -297,6 +351,42 @@ Vector Bootstrap::CalculateCumReturn(Vector V) {
     }
 
     return result;
+}
+
+string Bootstrap::FormatDate(string& date, string& type) {
+    string formatted_date = "";
+    string century = "20";
+    string day, month, year;
+
+    if (type == "announce") {
+        day = date.substr(0, 2);
+        month = date.substr(3, 3);
+        year = century + date.substr(7, 2);
+    }
+    else if (type == "end") {
+        month = date.substr(0, 3);
+        year = century + date.substr(4, 2);
+    }
+
+    if (month == "JAN" || month == "Jan") { month = "01"; }
+    else if (month == "FEB" || month == "Feb") { month = "02"; }
+    else if (month == "MAR" || month == "Mar") { month = "03"; }
+    else if (month == "APR" || month == "Apr") { month = "04"; }
+    else if (month == "MAY" || month == "May") { month = "05"; }
+    else if (month == "JUN" || month == "Jun") { month = "06"; }
+    else if (month == "JUL" || month == "Jul") { month = "07"; }
+    else if (month == "AUG" || month == "Aug") { month = "08"; }
+    else if (month == "SEP" || month == "Sep") { month = "09"; }
+    else if (month == "OCT" || month == "Oct") { month = "10"; }
+    else if (month == "NOV" || month == "Nov") { month = "11"; }
+    else if (month == "DEC" || month == "Dec") { month = "12"; }
+
+    if (type == "announce")
+        formatted_date = year + "-" + month + "-" + day;
+    else if (type == "end")
+        formatted_date = year + "-" + month;
+
+    return formatted_date;
 }
 
 int Bootstrap::GetN() const {

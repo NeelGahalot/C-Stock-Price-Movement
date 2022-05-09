@@ -6,12 +6,12 @@
 
 using namespace std;
 
-void Stock::SetAdjustedClose(Vector adjusted_close) {
-    adjusted_close_ = adjusted_close;
-}
-
 void Stock::SetDailyPrices(Vector daily_prices) {
     daily_prices_= daily_prices;
+}
+
+void Stock::SetDailyReturns(Vector daily_returns) {
+    daily_returns_ = daily_returns;
 }
 
 void Stock::SetCumDailyReturns(Vector cum_daily_returns) {
@@ -50,12 +50,12 @@ void Stock::SetEndDate(string end_date) {
     end_date_ = end_date;
 }
 
-Vector Stock::GetAdjustedClose() {
-    return adjusted_close_;
-}
-
 Vector Stock::GetDailyPrices() {
     return daily_prices_;
+}
+
+Vector Stock::GetDailyReturns() {
+    return daily_returns_;
 }
 
 Vector Stock::GetCumDailyReturns() {
@@ -96,10 +96,7 @@ double Stock::GetSurprisePercent() {
 
 void print(Vector const& item) {
     for (int i = 0; i < item.size(); i++)
-    {
         std::cout << item.at(i) << ' ';
-    }
-    cout << " \n" << endl;
 }
 
 ostream& operator<<(ostream& os, Stock& stock) {
@@ -111,10 +108,10 @@ ostream& operator<<(ostream& os, Stock& stock) {
     os << "Actual Earning Per Share: " << stock.GetEstimatedEPS() << endl;
     os << "Earning Per Share Surprise: " << stock.GetSurprise() << endl;
     os << "Earning Per Share Surprise %: " << stock.GetSurprisePercent() << endl;
-    os << "Adjusted Close Price: " << endl;
-    print(stock.GetAdjustedClose());
     os << "Daily Prices: " << endl;
     print(stock.GetDailyPrices());
+    os << "Daily Returns: " << endl;
+    print(stock.GetDailyReturns());
     os << "Cumulative Daily Returns: " << endl;
     print(stock.GetCumDailyReturns());
 

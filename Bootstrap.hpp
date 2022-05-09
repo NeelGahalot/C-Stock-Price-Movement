@@ -35,13 +35,16 @@ public:
 
     Vector CalculateReturn(Vector V);
     Vector CalculateCumReturn(Vector V);
-    void GetHistoricalPrices(map<string, string> ticker_date_map, map<string, Vector>& price_map, map<string, Vector>& benchmark_map, map<string, map<string, double>>& date_price_map, map<string, double>& iwv_date_map);
+    //void GetHistoricalPrices(map<string, string> ticker_date_map, map<string, Vector>& price_map, map<string, Vector>& benchmark_map, map<string, map<string, double>>& date_price_map, map<string, double>& iwv_date_map);
+    void GetHistoricalPrices(map <string, Stock>& stock_map, map<string, map<string, double>>& date_price_map, map<string, Vector>& benchmark_map, map<string, double>& iwv_date_map);    
     vector<Vector> GetAR(int n, vector<vector<string>> ar, map<string, Vector> ar_table);
     Vector GetAAR(vector<Vector> vec);
     Vector GetCAAR(Vector vec);
     Vector CalculateAvg(vector<Vector> vec);
     Vector CalculateStd(vector<Vector> vec, Vector avg);
     vector<Vector> CalculateAll(vector<vector<string>> vec, map<string, Vector> ar_table);
+
+    string FormatDate(string& date, string& type);
 
     ~Bootstrap() {};
 };
