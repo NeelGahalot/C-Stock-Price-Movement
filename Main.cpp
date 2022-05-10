@@ -15,8 +15,6 @@
 #include "Stock.hpp"
 #include "Vector.hpp"
 
-#define THREAD_COUNT 15
-
 using namespace std;
 
 void DisplayMenu() {
@@ -42,8 +40,6 @@ int main() {
     cout << "----------------------- Populating tickers & IWV ----------------------" << endl;
 
     // Read all the symbols from the file
-    //bs.populateTickerVector(ticker_list);
-    //bs.populateIWVVector(stock_map);
     bs.populateTickers(ticker_list);
     bs.populateEarnings(stock_map);
 
@@ -66,37 +62,11 @@ int main() {
     map<string, map<string, double>> date_price_map;
 
     ExtractIWVData(iwv_date_map, start_date, end_date);
-    //ExtractStockData(ticker_date_map, date_price_map);
     ExtractStockData(stock_map, date_price_map, start_date, end_date);
-
-    /*cout << "------------------------ Stock data extraction ------------------------" << endl;
-    int progress = 0;
-    int total_progress = (int)stock_map.size();
-    int stock_size = total_progress;
-    int r_size = stock_size / THREAD_COUNT;
-    int r_start = 0;
-    int r_end = r_start + r_size;
-    vector<thread> thread_list;
-    for (int i = 0; i < THREAD_COUNT; i++) {
-        thread_list.push_back(thread(ExtractStockData, ref(stock_map), ref(date_price_map), ref(start_date), ref(end_date), r_start, r_end, ref(progress), ref(total_progress)));
-        r_start += r_size;
-        r_end += r_size;
-        r_start = min(r_start, stock_size);
-        r_end = min(r_end, stock_size);
-    }
-    if (r_start < stock_size) {
-        r_end = stock_size;
-        thread_list.push_back(thread(ExtractStockData, ref(stock_map), ref(date_price_map), ref(start_date), ref(end_date), r_start, r_end, ref(progress), ref(total_progress)));
-    }
-    for (int i = 0; i < thread_list.size(); i++) {
-        thread_list[i].join();
-    }
-    cout << endl << "Stock data extraction complete." << endl << endl;*/
 
     vector<string> current_tickers;
     vector<string> valid_tickers;
     map<string, Vector> ar_table;
-    //string current_ticker;
     string ticker;
     Vector stock_return;
     Vector benchmark_return;
@@ -226,26 +196,6 @@ int main() {
             case 2: {
                 cout << "Please enter stock ticker:" << endl;
                 cin >> ticker;
-
-                /*auto iter = find(stock_map.begin(), stock_map.end(), ticker);
-                if (iter != stock_map.end())
-                {
-                    ticker_index = (int)distance(stock_map.begin(), iter);
-
-                    if (find(miss_estimated.begin(), miss_estimated.end(), ticker) != miss_estimated.end() && ticker != "")
-                        group = "MISS ESTIMATE";
-                    else if (find(meet_calculation.begin(), meet_calculation.end(), ticker) != meet_calculation.end() && ticker != "")
-                        group = "MEET ESTIMATE";
-                    else if (find(beat_calculation.begin(), beat_calculation.end(), ticker) != beat_calculation.end() && ticker != "")
-                        group = "BEAT ESTIMATE";
-
-                    daily_return = bs.CalculateReturn(price_map[ticker]);
-                    iter->second.SetDailyPrices(daily_return);
-                    cum_daily_return = bs.CalculateCumReturn(daily_return);
-                    iter->second.SetCumDailyReturns(cum_daily_return);
-
-                    cout << iter->second << endl;
-                }*/
                 
                 for (int i = 0; i < valid_tickers.size(); i++) {
                     if (ticker == valid_tickers[i]) {
@@ -265,37 +215,6 @@ int main() {
 
                 break;
             }
-
-            //case 2: {
-            //    cout << "Please enter stock ticker:" << endl;
-            //    cin >> ticker;
-
-            //    //auto iter = find(stock_map.begin(), stock_map.end(), stock_ticker);
-            //    //if (iter != stock_map.end())
-            //    //auto itr = stock_map.begin();
-
-            //    if (find(valid_tickers.begin(), valid_tickers.end(), ticker) != valid_tickers.end() && ticker != "") {
-            //        /*ticker_index = (int)distance(stock_map.begin(), iter);
-
-            //        if (find(miss_estimated.begin(), miss_estimated.end(), stock_ticker) != miss_estimated.end() && stock_ticker != "")
-            //            group = "MISS ESTIMATE";
-            //        else if (find(meet_calculation.begin(), meet_calculation.end(), stock_ticker) != meet_calculation.end() && stock_ticker != "")
-            //            group = "MEET ESTIMATE";
-            //        else if (find(beat_calculation.begin(), beat_calculation.end(), stock_ticker) != beat_calculation.end() && stock_ticker != "")
-            //            group = "BEAT ESTIMATE";*/
-
-            //        daily_return = bs.CalculateReturn(stock_map[ticker].GetDailyPrices());
-            //        stock_map[ticker].SetDailyReturns(daily_return);
-            //        cum_daily_return = bs.CalculateCumReturn(daily_return);
-            //        stock_map[ticker].SetCumDailyReturns(cum_daily_return);
-
-            //        cout << stock_map[ticker] << endl;
-            //    }
-            //    else
-            //        cout << "Ticker not found. Please enter a valid ticker. " << endl;
-
-            //    break;
-            //}
             
             case 3: {
                 cout << "Please enter the group selection: " << endl
