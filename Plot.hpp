@@ -13,9 +13,9 @@ void Plot(vector<vector<Vector>> calculation_results) {
     int dataSize = calculation_results[0][1].size();
     int N = (dataSize >> 1) + 1;
     FILE* gnuplotPipe, * tempDataFile;
-    const char* tempDataFileName1 = "Miss";
+    const char* tempDataFileName1 = "Beat";
     const char* tempDataFileName2 = "Meet";
-    const char* tempDataFileName3 = "Beat";
+    const char* tempDataFileName3 = "Miss";
     double x, y, x2, y2, x3, y3;
     int i;
 
@@ -27,7 +27,7 @@ void Plot(vector<vector<Vector>> calculation_results) {
         tempDataFile = fopen(tempDataFileName1, "w");
         for (i = 0; i < dataSize; i++) {
             x = i - N;
-            y = calculation_results[0][1][i];
+            y = calculation_results[2][1][i];
             fprintf(tempDataFile, "%lf %lf\n", x, y);
         }
         fclose(tempDataFile);
@@ -43,7 +43,7 @@ void Plot(vector<vector<Vector>> calculation_results) {
         tempDataFile = fopen(tempDataFileName3, "w");
         for (i = 0; i < dataSize; i++) {
             x3 = i - N;
-            y3 = calculation_results[2][1][i];
+            y3 = calculation_results[0][1][i];
             fprintf(tempDataFile, "%lf %lf\n", x3, y3);
         }
         fclose(tempDataFile);

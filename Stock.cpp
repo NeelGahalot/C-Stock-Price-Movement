@@ -97,21 +97,22 @@ double Stock::GetSurprisePercent() {
 void print(Vector const& item) {
     for (int i = 0; i < item.size(); i++)
         std::cout << item.at(i) << ' ';
+    cout << endl;
 }
 
 ostream& operator<<(ostream& os, Stock& stock) {
     os << "Ticker: " << stock.GetTicker() << endl;
     os << "Group: " << stock.GetGroup() << endl;
     os << "Announcement Date: " << stock.GetAnnounceDate() << endl;
-    os << "End Date: " << stock.GetEndDate() << endl;
+    os << "Period Ending: " << stock.GetEndDate() << endl;
     os << "Estimated Earning Per Share: " << stock.GetEstimatedEPS() << endl;
     os << "Actual Earning Per Share: " << stock.GetEstimatedEPS() << endl;
-    os << "Earning Per Share Surprise: " << stock.GetSurprise() << endl;
-    os << "Earning Per Share Surprise %: " << stock.GetSurprisePercent() << endl;
+    os << "Surprise: " << stock.GetSurprise() << endl;
+    os << "Surprise %: " << stock.GetSurprisePercent() << endl;
     os << "Daily Prices: " << endl;
     print(stock.GetDailyPrices());
-    os << "Daily Returns: " << endl;
-    print(stock.GetDailyReturns());
+    /*os << "Daily Returns: " << endl;
+    print(stock.GetDailyReturns());*/
     os << "Cumulative Daily Returns: " << endl;
     print(stock.GetCumDailyReturns());
 

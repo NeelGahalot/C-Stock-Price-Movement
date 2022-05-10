@@ -43,9 +43,6 @@ int write_data2(void* ptr, size_t size, size_t nmemb, void* data) {
 }
 
 int ExtractIWVData(map<string, double>& iwv_date_map, string& start_date, string& end_date) {
-	//string start_date = "2020-05-01";//"2021-04-01";
-	//string end_date = "2021-11-30";//"2022-03-31";
-
 	// declaration of an object CURL
 	CURL* handle;
 
@@ -62,7 +59,7 @@ int ExtractIWVData(map<string, double>& iwv_date_map, string& start_date, string
 	if (handle)
 	{
 		string url_common = "https://eodhistoricaldata.com/api/eod/";
-		string api_token = "61ad428d1d8d76.46544183"; //"62686d23ea5b52.97340064";  // You must replace this API token with yours
+		string api_token = "5ba84ea974ab42.45160048"; //"61ad428d1d8d76.46544183"; //"62686d23ea5b52.97340064";  // You must replace this API token with yours
 
 		struct MemoryStruct data;
 		data.memory = NULL;
@@ -155,7 +152,7 @@ int ExtractStockData(map<string, Stock>& stock_map, map<string, map<string, doub
 	if (handle)
 	{
 		string url_common = "https://eodhistoricaldata.com/api/eod/";
-		string api_token = "61ad428d1d8d76.46544183"; //"62686d23ea5b52.97340064";  // You must replace this API token with yours
+		string api_token = "5ba84ea974ab42.45160048"; //"61ad428d1d8d76.46544183"; //"62686d23ea5b52.97340064";  // You must replace this API token with your
 
 		struct MemoryStruct data;
 		data.memory = NULL;
