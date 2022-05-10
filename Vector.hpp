@@ -6,8 +6,6 @@ using namespace std;
 
 typedef vector<double> Vector;
 
-Vector operator+(const Vector& V, const Vector& W);
-Vector operator-(const Vector& V, const Vector& W);
-Vector CalculateReturn(Vector V);
-Vector CalculateCumReturn(Vector V);
+Vector operator+(Vector& V, Vector& W);
+Vector operator-(Vector& V, Vector& W);
 ostream& operator<<(ostream& out, Vector& V);

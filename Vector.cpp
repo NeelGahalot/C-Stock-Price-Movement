@@ -1,9 +1,9 @@
-#include "Vector.hpp"
 #include <ostream>
+#include "Vector.hpp"
 
 using namespace std;
 
-Vector operator+(const Vector& V, const Vector& W) {
+Vector operator+(Vector& V, Vector& W) {
     int d = (int)V.size();
     Vector U(d);
 
@@ -13,7 +13,7 @@ Vector operator+(const Vector& V, const Vector& W) {
     return U;
 }
 
-Vector operator-(const Vector& V, const Vector& W) {
+Vector operator-(Vector& V, Vector& W) {
     int d = (int)V.size();
     Vector U(d);
 
@@ -23,28 +23,6 @@ Vector operator-(const Vector& V, const Vector& W) {
     return U;
 }
 
-Vector CalculateReturn(Vector V) {
-    int size = (int)V.size();
-    Vector result;
-
-    for (int i = 0; i < size - 1; i++)
-        result.push_back((V[i + 1] - V[i]) / V[i]);
-
-    return result;
-}
-
-Vector CalculateCumReturn(Vector V) {
-    int size = (int)V.size();
-    Vector result;
-    double cumsum = 0.0;
-
-    for (int i = 0; i < size; i++) {
-        cumsum += V[i];
-        result.push_back(cumsum);
-    }
-
-    return result;
-}
 ostream& operator<<(ostream& out, Vector& V) {
     for (Vector::iterator itr = V.begin(); itr != V.end(); itr++)
         out << *itr << " ";

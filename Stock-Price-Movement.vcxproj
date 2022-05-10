@@ -19,18 +19,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Orig\Bootstrap.hpp" />
-    <ClInclude Include="Orig\calculation.hpp" />
-    <ClInclude Include="Orig\Data.hpp" />
-    <ClInclude Include="Orig\Download.hpp" />
-    <ClInclude Include="Orig\Vector.hpp" />
+    <ClCompile Include="Bootstrap.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Stock.cpp" />
+    <ClCompile Include="Vector.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Orig\Bootstrap.cpp" />
-    <ClCompile Include="Orig\calculation.cpp" />
-    <ClCompile Include="Orig\Data.cpp" />
-    <ClCompile Include="Orig\main.cpp" />
-    <ClCompile Include="Orig\Vector.cpp" />
+    <ClInclude Include="Bootstrap.hpp" />
+    <ClInclude Include="Download.hpp" />
+    <ClInclude Include="Plot.hpp" />
+    <ClInclude Include="Stock.hpp" />
+    <ClInclude Include="Vector.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
