@@ -173,6 +173,7 @@ int main() {
                         }
                     }
                 }
+                sort( sorted_stocks.begin(), sorted_stocks.end(), Stock::before );
                 for(int i = 0; i < sorted_stocks.size(); i++) {
                     sort_vec.push_back(sorted_stocks[i].GetTicker());
                 }
