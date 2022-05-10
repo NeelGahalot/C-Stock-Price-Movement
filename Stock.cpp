@@ -6,6 +6,10 @@
 
 using namespace std;
 
+bool Stock::before(Stock& lhs, Stock& rhs) {
+    return lhs.GetSurprisePercent() > rhs.GetSurprisePercent();
+}
+
 void Stock::SetDailyPrices(Vector daily_prices) {
     daily_prices_= daily_prices;
 }

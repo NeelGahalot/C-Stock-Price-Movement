@@ -55,4 +55,6 @@ public:
     string GetEndDate();
     
     friend ostream& operator<<(ostream& os, Stock& stock);
+
+    static bool before(Stock& lhs, Stock& rhs);
 };

@@ -71,6 +71,7 @@ int main() {
     Vector stock_return;
     Vector benchmark_return;
     vector<string> sort_vec;
+    vector<Stock> sorted_stocks;
 
     vector<vector<string>> beat_estimated;
     vector<vector<string>> meet_estimated;
@@ -136,6 +137,7 @@ int main() {
                 meet_estimated.clear();
                 miss_estimated.clear();
                 sort_vec.clear();
+                sorted_stocks.clear();
 
                 bs.GetHistoricalPrices(ticker_date_map, price_map, benchmark_map, date_price_map, iwv_date_map);
 
@@ -166,9 +168,13 @@ int main() {
 
                     for (int i = 0; i < valid_tickers.size(); i++) {
                         if (ticker == valid_tickers[i]) {
-                            sort_vec.push_back(ticker);
+                            // sort_vec.push_back(ticker);
+                            sorted_stocks.push_back(itr->second);
                         }
                     }
+                }
+                for(int i = 0; i < sorted_stocks.size(); i++) {
+                    sort_vec.push_back(sorted_stocks[i].GetTicker());
                 }
 
                 //Split Valid Symbols into three groups
