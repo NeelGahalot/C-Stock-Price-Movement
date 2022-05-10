@@ -27,9 +27,7 @@ public:
     void SetSamples(int number_of_samples);
     void SetResamples(int resample_times);
 
-    //void populateTickerVector(vector<string>& tickers);
     void populateTickers(vector<string>& tickers);
-    //void populateIWVVector(map<string, Stock>& stock_map);
     void populateEarnings(map<string, Stock>& stock_map);
     void SplitToGroups(vector<string>& title, vector<string>& miss, vector<string>& meet, vector<string>& beat);
     vector<string> Resample(vector<string> vec);

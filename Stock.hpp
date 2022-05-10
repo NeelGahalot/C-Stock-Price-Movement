@@ -53,6 +53,8 @@ public:
     string GetGroup();
     string GetAnnounceDate();
     string GetEndDate();
+
+    static bool before(Stock& lhs, Stock& rhs);
     
     friend ostream& operator<<(ostream& os, Stock& stock);
 };

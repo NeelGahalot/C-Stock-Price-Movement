@@ -21,12 +21,14 @@
   <ItemGroup>
     <ClCompile Include="Bootstrap.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="Stock.cpp" />
     <ClCompile Include="Vector.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bootstrap.hpp" />
     <ClInclude Include="Download.hpp" />
+    <ClInclude Include="Matrix.hpp" />
     <ClInclude Include="Plot.hpp" />
     <ClInclude Include="Stock.hpp" />
     <ClInclude Include="Vector.hpp" />

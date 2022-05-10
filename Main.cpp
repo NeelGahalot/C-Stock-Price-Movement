@@ -9,21 +9,24 @@
 #include <map>
 #include <algorithm>
 #include <thread>
+#include <ctime>
 #include "Bootstrap.hpp"
 #include "Download.hpp"
 #include "Plot.hpp"
 #include "Stock.hpp"
 #include "Vector.hpp"
+#include "Matrix.hpp"
 
 using namespace std;
 
 void DisplayMenu() {
-    cout << "------------------------- Menu -------------------------" << endl;
+    cout << "--------------------------------- Menu ---------------------------------" << endl;
     cout << "1. Enter N." << endl
          << "2. Pull information for one stock." << endl
          << "3. Show AAR, AAR-STD, CAAR and CAAR-STD for one group." << endl
          << "4. Show the CAAR graph for all groups." << endl
-         << "5. Exit menu." << endl;
+         << "5. Exit menu." << endl
+         << "Please select an option: ";
 }
 
 int main() {
@@ -35,9 +38,10 @@ int main() {
     Bootstrap bs;
     map<string, Stock> stock_map;
     vector<string> ticker_list;
+
     vector<string> beat, meet, miss;
 
-    cout << "----------------------- Populating tickers & IWV ----------------------" << endl;
+    cout << "----------------------- Populating tickers & IWV -----------------------" << endl;
 
     // Read all the symbols from the file
     bs.populateTickers(ticker_list);
@@ -61,9 +65,6 @@ int main() {
     map<string, double> iwv_date_map;
     map<string, map<string, double>> date_price_map;
 
-    ExtractIWVData(iwv_date_map, start_date, end_date);
-    ExtractStockData(stock_map, date_price_map, start_date, end_date);
-
     vector<string> current_tickers;
     vector<string> valid_tickers;
     map<string, Vector> ar_table;
@@ -71,21 +72,21 @@ int main() {
     Vector stock_return;
     Vector benchmark_return;
     vector<string> sort_vec;
+    vector<Stock> sorted_stocks;
 
     vector<vector<string>> beat_estimated;
     vector<vector<string>> meet_estimated;
     vector<vector<string>> miss_estimated;
 
-    vector<Vector> beat_calculation;
-    vector<Vector> meet_calculation;
-    vector<Vector> miss_calculation;
+    Matrix beat_calculation;
+    Matrix meet_calculation;
+    Matrix miss_calculation;
 
     //calculate average average AAR,CAAR,AAR_STD,CAAR_STD
-    vector<vector<Vector>> calcualtion_results;
+    vector<Matrix> calcualtion_results;
 
     //get operator
     int choice = 0;
-    //string stock_ticker;
     string group;
     int ticker_index = 0;
     Vector daily_return;
@@ -95,7 +96,6 @@ int main() {
 
     while (choice != 5) {
         DisplayMenu();
-        cout << "Please select an option: ";
         cin >> choice;
         cout << endl;
 
@@ -111,13 +111,17 @@ int main() {
             }
             
             case 1: {
-                cout << "Please enter N (N>=60):" << endl;
+                cout << "Please enter N (N>=60) or 4 to return to previous menu: ";
                 cin >> N;
+                cout << endl;
 
-                if (N < 60) {
-                    cout << "Invalid value for N, setting N to 60." << endl;
+                if (N == 4)
+                    break;
+                else if (N < 60) {
+                    cout << "Invalid value for N, setting N to 60." << endl << endl;
                     N = 60;
                 }
+
                 bs.SetN(N);
 
                 current_tickers.clear();
@@ -136,6 +140,10 @@ int main() {
                 meet_estimated.clear();
                 miss_estimated.clear();
                 sort_vec.clear();
+                sorted_stocks.clear();
+
+                ExtractIWVData(iwv_date_map, start_date, end_date);
+                ExtractStockData(stock_map, date_price_map, start_date, end_date);
 
                 bs.GetHistoricalPrices(ticker_date_map, price_map, benchmark_map, date_price_map, iwv_date_map);
 
@@ -166,9 +174,15 @@ int main() {
 
                     for (int i = 0; i < valid_tickers.size(); i++) {
                         if (ticker == valid_tickers[i]) {
-                            sort_vec.push_back(ticker);
+                            //sort_vec.push_back(ticker);
+                            sorted_stocks.push_back(itr->second);
                         }
                     }
+                }
+
+                sort(sorted_stocks.begin(), sorted_stocks.end(), Stock::before);
+                for (int i = 0; i < sorted_stocks.size(); i++) {
+                    sort_vec.push_back(sorted_stocks[i].GetTicker());
                 }
 
                 //Split Valid Symbols into three groups
@@ -221,7 +235,8 @@ int main() {
                      << "1. Beat Estimate Group" << endl
                      << "2. Miss Estimate Group" << endl
                      << "3. Meet Estimate Group" << endl
-                     << "4. Go back to the previous menu" << endl;
+                     << "4. Go back to the previous menu" << endl
+                     << "Option: ";
 
                 cin >> group_selection;
 
