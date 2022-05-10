@@ -8,11 +8,14 @@
 #include <fstream>
 #include <map>
 #include <algorithm>
+#include <thread>
 #include "Bootstrap.hpp"
 #include "Download.hpp"
 #include "Plot.hpp"
 #include "Stock.hpp"
 #include "Vector.hpp"
+
+#define THREAD_COUNT 15
 
 using namespace std;
 
@@ -28,8 +31,8 @@ void DisplayMenu() {
 int main() {
     srand(time(NULL));
     int N = 0;
-    string start_date = "2020-05-01";
-    string end_date = "2021-11-30";
+    string start_date = "2021-04-01";
+    string end_date = "2022-03-31";
 
     Bootstrap bs;
     map<string, Stock> stock_map;
@@ -39,20 +42,22 @@ int main() {
     cout << "----------------------- Populating tickers & IWV ----------------------" << endl;
 
     // Read all the symbols from the file
-    bs.populateTickerVector(ticker_list);
-    bs.populateIWVVector(stock_map);
+    //bs.populateTickerVector(ticker_list);
+    //bs.populateIWVVector(stock_map);
+    bs.populateTickers(ticker_list);
+    bs.populateEarnings(stock_map);
 
-    //map<string, string> ticker_date_map; // a map that contains tickers and corresponding day zeros
+    map<string, string> ticker_date_map; // a map that contains tickers and corresponding day zeros
  
-    //for (auto itr = stock_map.begin(); itr != stock_map.end(); itr++) {
-    //    //use intersection of ticker_list and ticker
-    //    string ticker = itr->first;
-    //    string announce_date = itr->second.GetAnnounceDate();
+    for (auto itr = stock_map.begin(); itr != stock_map.end(); itr++) {
+        //use intersection of ticker_list and ticker
+        string ticker = itr->first;
+        string announce_date = itr->second.GetAnnounceDate();
 
-    //    if (find(ticker_list.begin(), ticker_list.end(), ticker) != ticker_list.end() && ticker != "") {
-    //        ticker_date_map[ticker] = announce_date;
-    //    }
-    //}
+        if (find(ticker_list.begin(), ticker_list.end(), ticker) != ticker_list.end() && ticker != "") {
+            ticker_date_map[ticker] = announce_date;
+        }
+    }
 
     //price_map: ticker and vector of price pair
     //benchmark_map: ticker and vector of benchmark price pair
@@ -63,6 +68,30 @@ int main() {
     ExtractIWVData(iwv_date_map, start_date, end_date);
     //ExtractStockData(ticker_date_map, date_price_map);
     ExtractStockData(stock_map, date_price_map, start_date, end_date);
+
+    /*cout << "------------------------ Stock data extraction ------------------------" << endl;
+    int progress = 0;
+    int total_progress = (int)stock_map.size();
+    int stock_size = total_progress;
+    int r_size = stock_size / THREAD_COUNT;
+    int r_start = 0;
+    int r_end = r_start + r_size;
+    vector<thread> thread_list;
+    for (int i = 0; i < THREAD_COUNT; i++) {
+        thread_list.push_back(thread(ExtractStockData, ref(stock_map), ref(date_price_map), ref(start_date), ref(end_date), r_start, r_end, ref(progress), ref(total_progress)));
+        r_start += r_size;
+        r_end += r_size;
+        r_start = min(r_start, stock_size);
+        r_end = min(r_end, stock_size);
+    }
+    if (r_start < stock_size) {
+        r_end = stock_size;
+        thread_list.push_back(thread(ExtractStockData, ref(stock_map), ref(date_price_map), ref(start_date), ref(end_date), r_start, r_end, ref(progress), ref(total_progress)));
+    }
+    for (int i = 0; i < thread_list.size(); i++) {
+        thread_list[i].join();
+    }
+    cout << endl << "Stock data extraction complete." << endl << endl;*/
 
     vector<string> current_tickers;
     vector<string> valid_tickers;
@@ -138,84 +167,32 @@ int main() {
                 miss_estimated.clear();
                 sort_vec.clear();
 
-                //bs.GetHistoricalPrices(ticker_date_map, price_map, benchmark_map, date_price_map, iwv_date_map);
+                bs.GetHistoricalPrices(ticker_date_map, price_map, benchmark_map, date_price_map, iwv_date_map);
 
-                //for (auto itr = price_map.begin(); itr != price_map.end(); itr++)
-                //    current_tickers.push_back(itr->first);
-
-                ////Check and erase stocks with less than 2N+1 days of data
-                ////If valid, put symbol into valid_symbol and caluclate returns & AR
-                //for (int i = 0; i < current_tickers.size(); i++) {
-                //    current_ticker = current_tickers[i];
-
-                //    if ((int)price_map[current_ticker].size() < 2 * N + 1) {
-                //        cout << current_ticker + " less than (2N + 1) days! Actual days: " + to_string(price_map[current_ticker].size()) << endl;
-                //        price_map.erase(current_ticker);
-                //        benchmark_map.erase(current_ticker);
-                //    }
-                //    else {
-                //        valid_tickers.push_back(current_ticker);
-                //        stock_return = bs.CalculateReturn(price_map[current_ticker]);
-                //        benchmark_return = bs.CalculateReturn(benchmark_map[current_ticker]);
-                //        ar_table[current_ticker] = stock_return - benchmark_return;
-                //    }
-                //}
-
-                //for (auto itr = stock_map.begin(); itr != stock_map.end(); itr++) {
-                //    string ticker = itr->first;
-
-                //    for (int i = 0; i < valid_tickers.size(); i++) {
-                //        if (ticker == valid_tickers[i]) {
-                //            sort_vec.push_back(ticker);
-                //        }
-                //    }
-                //}
-
-                ////Split Valid Symbols into three groups
-                //bs.SplitToGroups(sort_vec, beat, miss, meet);
-
-                ////resample data of three groups
-                //bs.ResampleVector(beat_estimated, beat);
-                //bs.ResampleVector(meet_estimated, meet);
-                //bs.ResampleVector(miss_estimated, miss);
-                //cout << "Resampled groups successfully." << endl << endl;
-
-                //bs.SetDates(2 * N);
-
-                //beat_calculation = bs.CalculateAll(beat_estimated, ar_table);
-                //meet_calculation = bs.CalculateAll(meet_estimated, ar_table);
-                //miss_calculation = bs.CalculateAll(miss_estimated, ar_table);
-
-                //calcualtion_results.push_back(beat_calculation);
-                //calcualtion_results.push_back(meet_calculation);
-                //calcualtion_results.push_back(miss_calculation);
-
-                bs.GetHistoricalPrices(stock_map, date_price_map, benchmark_map, iwv_date_map);
-
-                for (auto itr = stock_map.begin(); itr != stock_map.end(); itr++)
+                for (auto itr = price_map.begin(); itr != price_map.end(); itr++)
                     current_tickers.push_back(itr->first);
 
                 //Check and erase stocks with less than 2N+1 days of data
                 //If valid, put symbol into valid_symbol and caluclate returns & AR
                 for (int i = 0; i < current_tickers.size(); i++) {
-                    //current_ticker = current_tickers[i];
                     ticker = current_tickers[i];
 
-                    if ((int)stock_map[ticker].GetDailyPrices().size() < 2 * N + 1) {
-                        cout << ticker + " less than (2N + 1) days! Actual days: " + to_string(stock_map[ticker].GetDailyPrices().size()) << endl;
-                        stock_map.erase(ticker);
-                        benchmark_map.erase(ticker);
+                    if ((int)price_map[ticker].size() < (2 * N + 1)) {
+                        cout << ticker + " less than (2N + 1) days! Actual days: " + to_string(price_map[ticker].size()) << endl;
+                        //price_map.erase(ticker);
+                        //benchmark_map.erase(ticker);
                     }
                     else {
                         valid_tickers.push_back(ticker);
-                        stock_return = bs.CalculateReturn(stock_map[ticker].GetDailyPrices());
+                        stock_map[ticker].SetDailyPrices(price_map[ticker]);
+                        stock_return = bs.CalculateReturn(price_map[ticker]);
                         benchmark_return = bs.CalculateReturn(benchmark_map[ticker]);
                         ar_table[ticker] = stock_return - benchmark_return;
                     }
                 }
 
                 for (auto itr = stock_map.begin(); itr != stock_map.end(); itr++) {
-                    ticker = itr->first;
+                    string ticker = itr->first;
 
                     for (int i = 0; i < valid_tickers.size(); i++) {
                         if (ticker == valid_tickers[i]) {
@@ -246,65 +223,79 @@ int main() {
                 break;
             }
 
-            /*case 2: {
+            case 2: {
                 cout << "Please enter stock ticker:" << endl;
-                cin >> stock_ticker;
+                cin >> ticker;
 
-                auto iter = find(stock_map.begin(), stock_map.end(), stock_ticker);
-                if (iter != stock_map.cend())
+                /*auto iter = find(stock_map.begin(), stock_map.end(), ticker);
+                if (iter != stock_map.end())
                 {
                     ticker_index = (int)distance(stock_map.begin(), iter);
 
-                    if (find(miss_estimated.begin(), miss_estimated.end(), stock_ticker) != miss_estimated.end() && stock_ticker != "")
+                    if (find(miss_estimated.begin(), miss_estimated.end(), ticker) != miss_estimated.end() && ticker != "")
                         group = "MISS ESTIMATE";
-                    else if (find(meet_calculation.begin(), meet_calculation.end(), stock_ticker) != meet_calculation.end() && stock_ticker != "")
+                    else if (find(meet_calculation.begin(), meet_calculation.end(), ticker) != meet_calculation.end() && ticker != "")
                         group = "MEET ESTIMATE";
-                    else if (find(beat_calculation.begin(), beat_calculation.end(), stock_ticker) != beat_calculation.end() && stock_ticker != "")
+                    else if (find(beat_calculation.begin(), beat_calculation.end(), ticker) != beat_calculation.end() && ticker != "")
                         group = "BEAT ESTIMATE";
 
-                    daily_return = bs.CalculateReturn(price_map[stock_ticker]);
+                    daily_return = bs.CalculateReturn(price_map[ticker]);
                     iter->second.SetDailyPrices(daily_return);
                     cum_daily_return = bs.CalculateCumReturn(daily_return);
                     iter->second.SetCumDailyReturns(cum_daily_return);
 
                     cout << iter->second << endl;
+                }*/
+                
+                for (int i = 0; i < valid_tickers.size(); i++) {
+                    if (ticker == valid_tickers[i]) {
+                        daily_return = bs.CalculateReturn(price_map[ticker]);
+                        stock_map[ticker].SetDailyReturns(daily_return);
+                        cum_daily_return = bs.CalculateCumReturn(daily_return);
+                        stock_map[ticker].SetCumDailyReturns(cum_daily_return);
+
+                        cout << stock_map[ticker] << endl;
+                        break;
+                    }
+                    else if (i == valid_tickers.size() - 1) {
+                        cout << "Ticker not found. Please enter a valid ticker. " << endl;
+                        break;
+                    }
                 }
-                else
-                    cout << "Ticker not found. Please enter a valid ticker. " << endl;
-
-                break;
-            }*/
-
-            case 2: {
-                cout << "Please enter stock ticker:" << endl;
-                cin >> ticker;
-
-                //auto iter = find(stock_map.begin(), stock_map.end(), stock_ticker);
-                //if (iter != stock_map.end())
-                //auto itr = stock_map.begin();
-
-                if (find(valid_tickers.begin(), valid_tickers.end(), ticker) != valid_tickers.end() && ticker != "") {
-                    /*ticker_index = (int)distance(stock_map.begin(), iter);
-
-                    if (find(miss_estimated.begin(), miss_estimated.end(), stock_ticker) != miss_estimated.end() && stock_ticker != "")
-                        group = "MISS ESTIMATE";
-                    else if (find(meet_calculation.begin(), meet_calculation.end(), stock_ticker) != meet_calculation.end() && stock_ticker != "")
-                        group = "MEET ESTIMATE";
-                    else if (find(beat_calculation.begin(), beat_calculation.end(), stock_ticker) != beat_calculation.end() && stock_ticker != "")
-                        group = "BEAT ESTIMATE";*/
-
-                    daily_return = bs.CalculateReturn(stock_map[ticker].GetDailyPrices());
-                    stock_map[ticker].SetDailyReturns(daily_return);
-                    cum_daily_return = bs.CalculateCumReturn(daily_return);
-                    stock_map[ticker].SetCumDailyReturns(cum_daily_return);
-
-                    cout << stock_map[ticker] << endl;
-                }
-                else
-                    cout << "Ticker not found. Please enter a valid ticker. " << endl;
 
                 break;
             }
+
+            //case 2: {
+            //    cout << "Please enter stock ticker:" << endl;
+            //    cin >> ticker;
+
+            //    //auto iter = find(stock_map.begin(), stock_map.end(), stock_ticker);
+            //    //if (iter != stock_map.end())
+            //    //auto itr = stock_map.begin();
+
+            //    if (find(valid_tickers.begin(), valid_tickers.end(), ticker) != valid_tickers.end() && ticker != "") {
+            //        /*ticker_index = (int)distance(stock_map.begin(), iter);
+
+            //        if (find(miss_estimated.begin(), miss_estimated.end(), stock_ticker) != miss_estimated.end() && stock_ticker != "")
+            //            group = "MISS ESTIMATE";
+            //        else if (find(meet_calculation.begin(), meet_calculation.end(), stock_ticker) != meet_calculation.end() && stock_ticker != "")
+            //            group = "MEET ESTIMATE";
+            //        else if (find(beat_calculation.begin(), beat_calculation.end(), stock_ticker) != beat_calculation.end() && stock_ticker != "")
+            //            group = "BEAT ESTIMATE";*/
+
+            //        daily_return = bs.CalculateReturn(stock_map[ticker].GetDailyPrices());
+            //        stock_map[ticker].SetDailyReturns(daily_return);
+            //        cum_daily_return = bs.CalculateCumReturn(daily_return);
+            //        stock_map[ticker].SetCumDailyReturns(cum_daily_return);
+
+            //        cout << stock_map[ticker] << endl;
+            //    }
+            //    else
+            //        cout << "Ticker not found. Please enter a valid ticker. " << endl;
+
+            //    break;
+            //}
             
             case 3: {
                 cout << "Please enter the group selection: " << endl

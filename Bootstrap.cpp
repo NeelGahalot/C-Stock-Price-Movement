@@ -18,7 +18,7 @@ using namespace std;
 const char* cStockTickersFile = "Russell_3000_component_stocks.csv";
 const char* cIWVFile = "Russell3000EarningsAnnouncements.csv";
 
-void Bootstrap::populateTickerVector(vector<string>& tickers) {
+void Bootstrap::populateTickers(vector<string>& tickers) {
     ifstream fstream;
     string line, ticker, name;
     int count = 0;
@@ -41,10 +41,11 @@ void Bootstrap::populateTickerVector(vector<string>& tickers) {
     cout << "Number of stocks successfully populated: " << count << endl << endl;
 }
 
-void Bootstrap::populateIWVVector(map<string, Stock>& stock_map) {
+void Bootstrap::populateEarnings(map<string, Stock>& stock_map) {
     ifstream fstream;
     string line, ticker, announce_date, end_date, estimated_eps, reported_eps, surprise, surprise_pct;
     string type;
+    int count = 0;
 
     fstream.open(cIWVFile, ios::in);
     // Skip header row
@@ -76,9 +77,11 @@ void Bootstrap::populateIWVVector(map<string, Stock>& stock_map) {
         stock_map[ticker].SetReportedEPS(stod(reported_eps));
         stock_map[ticker].SetSurprise(stod(surprise));
         stock_map[ticker].SetSurprisePercent(stod(surprise_pct));
+
+        count++;
     }
 
-    cout << "IWV data populated successfully." << endl << endl;
+    cout << "Earnings data successfully populated: " << count << endl << endl;
 }
 
 void Bootstrap::SplitToGroups(vector<string>& title, vector<string>& beat, vector<string>& miss, vector<string>& meet) {
@@ -91,18 +94,18 @@ void Bootstrap::SplitToGroups(vector<string>& title, vector<string>& beat, vecto
     cout << endl << "Stocks successfully seperated to different groups." << endl << endl;
 }
 
-vector<Vector> Bootstrap::GetAR(int n, vector<vector<string>> vec, map<string, Vector> ar_table) {
+vector<Vector> Bootstrap::GetAR(int m, vector<vector<string>> vec, map<string, Vector> ar_table) {
     map<string, Vector>::iterator itr;
     vector<vector<double>> AR;
     int number_of_samples = Bootstrap::GetSamples();
 
     for (int i = 0; i < number_of_samples; i++) {
-        itr = ar_table.find(vec[n][i]);
+        itr = ar_table.find(vec[m][i]);
 
         if (itr != ar_table.end())
             AR.push_back(itr->second);
         else
-            cout << vec[n][i] << "could not be found." << endl << endl;
+            cout << vec[m][i] << "could not be found." << endl << endl;
     }
 
     return AR;
@@ -188,8 +191,8 @@ vector<Vector> Bootstrap::CalculateAll(vector<vector<string>> vec, map<string, V
 
     int resample_times = Bootstrap::GetResamples();
 
-    for (int n = 0; n < resample_times; n++) {
-        vector<Vector> AR = Bootstrap::GetAR(n, vec, ar_table);
+    for (int m = 0; m < resample_times; m++) {
+        vector<Vector> AR = Bootstrap::GetAR(m, vec, ar_table);
         Vector AAR = Bootstrap::GetAAR(AR);
         Vector CAAR = Bootstrap::GetCAAR(AAR);
 
@@ -218,7 +221,6 @@ vector<string> Bootstrap::Resample(vector<string> vec) {
     vector<string> result;
 
     while (count < number_of_samples) {
-
         count += 1;
         index = rand() % len;
 
@@ -237,98 +239,51 @@ void Bootstrap::ResampleVector(vector<vector<string>>& vec, vector<string>& vec2
     }
 }
 
-//void Bootstrap::GetHistoricalPrices(map<string, string> ticker_date_map, map<string, Vector>& price_map, map<string, Vector>& benchmark_map, map<string, map<string, double>>& date_price_map, map<string, double>& iwv_date_map) {
-//    for (auto ticker_itr = ticker_date_map.begin(); ticker_itr != ticker_date_map.end(); ticker_itr++) {
-//        string ticker = ticker_itr->first;
-//        string date = ticker_itr->second;
-//
-//        Vector adj_close;
-//        Vector benchmark;
-//
-//        auto itr = date_price_map[ticker].find(date);
-//        // if the date zero is not found, return empty
-//        if (itr == date_price_map[ticker].end()) {
-//            cout << ticker + " day zero is not found!" << endl;
-//            continue;
-//        }
-//
-//        for (int i = 0; i < N_; i++) {
-//            //if the ticker doesn't have +N days, return end
-//            if (itr == date_price_map[ticker].end())
-//                break;
-//            itr++;
-//        }
-//
-//        auto end_itr = itr;
-//        if (itr != date_price_map[ticker].end())
-//            end_itr++;
-//
-//        //reset itr
-//        itr = date_price_map[ticker].find(date);
-//        for (int i = 0; i < N_; i++) {
-//            //if the ticker doesn't have -N days, return begin
-//            if (itr == date_price_map[ticker].begin())
-//                break;
-//            itr--;
-//        }
-//
-//        while (itr != end_itr) {
-//            adj_close.push_back(itr->second);
-//            benchmark.push_back(iwv_date_map[itr->first]);
-//            itr++;
-//        }
-//
-//        price_map[ticker] = adj_close;
-//        benchmark_map[ticker] = benchmark;
-//    }
-//}
-
-void Bootstrap::GetHistoricalPrices(map<string, Stock>& stock_map, map<string, map<string, double>>& date_price_map, map<string, Vector>& benchmark_map, map<string, double>& iwv_date_map) {
-    for (auto itr = stock_map.begin(); itr != stock_map.end(); itr++) {
-        string ticker = itr->first;
-        string date = itr->second.GetAnnounceDate();
+void Bootstrap::GetHistoricalPrices(map<string, string> ticker_date_map, map<string, Vector>& price_map, map<string, Vector>& benchmark_map, map<string, map<string, double>>& date_price_map, map<string, double>& iwv_date_map) {
+    for (auto ticker_itr = ticker_date_map.begin(); ticker_itr != ticker_date_map.end(); ticker_itr++) {
+        string ticker = ticker_itr->first;
+        string date = ticker_itr->second;
 
         Vector adj_close;
         Vector benchmark;
 
-        auto itr2 = date_price_map[ticker].find(date);
+        auto itr = date_price_map[ticker].find(date);
         // if the date zero is not found, return empty
-        if (itr2 == date_price_map[ticker].end()) {
+        if (itr == date_price_map[ticker].end()) {
             cout << ticker + " day zero is not found!" << endl;
             continue;
         }
 
         for (int i = 0; i < N_; i++) {
             //if the ticker doesn't have +N days, return end
-            if (itr2 == date_price_map[ticker].end())
+            if (itr == date_price_map[ticker].end())
                 break;
-            itr2++;
+            itr++;
         }
 
-        auto end_itr = itr2;
-        if (itr2 != date_price_map[ticker].end())
+        auto end_itr = itr;
+        if (itr != date_price_map[ticker].end())
             end_itr++;
 
         //reset itr
-        itr2 = date_price_map[ticker].find(date);
+        itr = date_price_map[ticker].find(date);
         for (int i = 0; i < N_; i++) {
             //if the ticker doesn't have -N days, return begin
-            if (itr2 == date_price_map[ticker].begin())
+            if (itr == date_price_map[ticker].begin())
                 break;
-            itr2--;
+            itr--;
         }
 
-        while (itr2 != end_itr) {
-            adj_close.push_back(itr2->second);
-            benchmark.push_back(iwv_date_map[itr2->first]);
-            itr2++;
+        while (itr != end_itr) {
+            adj_close.push_back(itr->second);
+            benchmark.push_back(iwv_date_map[itr->first]);
+            itr++;
         }
 
-        itr->second.SetDailyPrices(adj_close);
+        price_map[ticker] = adj_close;
         benchmark_map[ticker] = benchmark;
     }
 }
-
 
 Vector Bootstrap::CalculateReturn(Vector V) {
     int size = (int)V.size();

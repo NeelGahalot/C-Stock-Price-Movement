@@ -27,16 +27,17 @@ public:
     void SetSamples(int number_of_samples);
     void SetResamples(int resample_times);
 
-    void populateTickerVector(vector<string>& tickers);
-    void populateIWVVector(map<string, Stock>& stock_map);
+    //void populateTickerVector(vector<string>& tickers);
+    void populateTickers(vector<string>& tickers);
+    //void populateIWVVector(map<string, Stock>& stock_map);
+    void populateEarnings(map<string, Stock>& stock_map);
     void SplitToGroups(vector<string>& title, vector<string>& miss, vector<string>& meet, vector<string>& beat);
     vector<string> Resample(vector<string> vec);
     void ResampleVector(vector<vector<string>>& vec, vector<string>& vec2);
 
     Vector CalculateReturn(Vector V);
     Vector CalculateCumReturn(Vector V);
-    //void GetHistoricalPrices(map<string, string> ticker_date_map, map<string, Vector>& price_map, map<string, Vector>& benchmark_map, map<string, map<string, double>>& date_price_map, map<string, double>& iwv_date_map);
-    void GetHistoricalPrices(map <string, Stock>& stock_map, map<string, map<string, double>>& date_price_map, map<string, Vector>& benchmark_map, map<string, double>& iwv_date_map);    
+    void GetHistoricalPrices(map<string, string> ticker_date_map, map<string, Vector>& price_map, map<string, Vector>& benchmark_map, map<string, map<string, double>>& date_price_map, map<string, double>& iwv_date_map);
     vector<Vector> GetAR(int n, vector<vector<string>> ar, map<string, Vector> ar_table);
     Vector GetAAR(vector<Vector> vec);
     Vector GetCAAR(Vector vec);
