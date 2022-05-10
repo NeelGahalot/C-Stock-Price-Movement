@@ -59,14 +59,14 @@ int ExtractIWVData(map<string, double>& iwv_date_map, string& start_date, string
 	if (handle)
 	{
 		string url_common = "https://eodhistoricaldata.com/api/eod/";
-		string api_token = "5ba84ea974ab42.45160048"; //"61ad428d1d8d76.46544183"; //"62686d23ea5b52.97340064";  // You must replace this API token with yours
+		string api_token = "62686d23ea5b52.97340064";  // You must replace this API token with yours
 
 		struct MemoryStruct data;
 		data.memory = NULL;
 		data.size = 0;
 		data.total_size = 0;
 
-		cout << "------------------------- IWV data extraction -------------------------" << endl;
+		cout << "----------------------- IWV data extraction -----------------------------" << endl;
 
 		string url_request = url_common + "IWV" + ".US?" + "from=" + start_date + "&to=" + end_date + "&api_token=" + api_token + "&period=d";
 		curl_easy_setopt(handle, CURLOPT_URL, url_request.c_str());
@@ -128,8 +128,6 @@ int ExtractIWVData(map<string, double>& iwv_date_map, string& start_date, string
 
 int ExtractStockData(map<string, Stock> stock_map, map<string, map<string, double>>& date_price_map, string& start_date, string& end_date) {
 	int count = 0;
-	/*int length = ticker_date_map.size();
-	ticker_date_map["IWV"] = start_date;*/
 
 	int length = stock_map.size();
 
@@ -149,14 +147,14 @@ int ExtractStockData(map<string, Stock> stock_map, map<string, map<string, doubl
 	if (handle)
 	{
 		string url_common = "https://eodhistoricaldata.com/api/eod/";
-		string api_token = "5ba84ea974ab42.45160048"; //"61ad428d1d8d76.46544183"; //"62686d23ea5b52.97340064";  // You must replace this API token with your
+		string api_token = "62686d23ea5b52.97340064";  // You must replace this API token with your
 
 		struct MemoryStruct data;
 		data.memory = NULL;
 		data.size = 0;
 		data.total_size = 0;
 
-		cout << "------------------------ Stock data extraction ------------------------" << endl;
+		cout << "------------------------- Stock data extraction -------------------------" << endl;
 
 		//for (auto itr = ticker_date_map.begin(); itr != ticker_date_map.end(); itr++) {
 		for (auto itr = stock_map.begin(); itr != stock_map.end(); itr++) {
@@ -207,7 +205,7 @@ int ExtractStockData(map<string, Stock> stock_map, map<string, map<string, doubl
 			count += 1;
 
 			if (count % (length / 10) == 0)
-				cout << "- - - - - - - - - - - - - - Downloading " << ceil((count * 1.0 / length) * 100) << "% - - - - - - - - - - - - - - \r";
+				cout << "- - - - - - - - - - - - - - - - Downloading " << ceil((count * 1.0 / length) * 100) << "% - - - - - - - - - - - - - - - - \r";
 		}
 
 		free(data.memory);

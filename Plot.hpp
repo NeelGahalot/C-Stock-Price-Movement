@@ -6,10 +6,12 @@
 #include "Vector.hpp"
 #include "Bootstrap.hpp"
 #include "Stock.hpp"
+#include "Matrix.hpp"
 
 using namespace std;
 
-void Plot(vector<vector<Vector>> calculation_results) {
+//void Plot(vector<vector<Vector>> calculation_results) {
+void Plot(vector<Matrix> calculation_results) {
     int dataSize = calculation_results[0][1].size();
     int N = (dataSize >> 1) + 1;
     FILE* gnuplotPipe, * tempDataFile;

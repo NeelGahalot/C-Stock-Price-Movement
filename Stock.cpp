@@ -94,6 +94,10 @@ double Stock::GetSurprisePercent() {
     return surprise_pct_;
 }
 
+bool Stock::before(Stock& lhs, Stock& rhs) {
+    return lhs.GetSurprisePercent() > rhs.GetSurprisePercent();
+}
+
 void print(Vector const& item) {
     for (int i = 0; i < item.size(); i++)
         std::cout << item.at(i) << ' ';
