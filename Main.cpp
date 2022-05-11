@@ -8,7 +8,6 @@
 #include <fstream>
 #include <map>
 #include <algorithm>
-#include <thread>
 #include <ctime>
 #include "Bootstrap.hpp"
 #include "Download.hpp"
@@ -111,11 +110,11 @@ int main() {
             }
             
             case 1: {
-                cout << "Please enter N (N>=60) or 4 to return to previous menu: ";
+                cout << "Please enter N (N>=60) or 5 to return to previous menu: ";
                 cin >> N;
                 cout << endl;
 
-                if (N == 4)
+                if (N == 5)
                     break;
                 else if (N < 60) {
                     cout << "Invalid value for N, setting N to 60." << endl << endl;
@@ -185,6 +184,9 @@ int main() {
                     sort_vec.push_back(sorted_stocks[i].GetTicker());
                 }
 
+                for (int i = 0; i < sort_vec.size(); i++)
+                    cout << sort_vec[i] << endl;
+
                 //Split Valid Symbols into three groups
                 bs.SplitToGroups(sort_vec, beat, miss, meet);
 
@@ -194,6 +196,21 @@ int main() {
                 bs.ResampleVector(miss_estimated, miss);
                 cout << "Resampled groups successfully." << endl << endl;
 
+                for (int i = 0; i < beat.size(); i++) {
+                    string ticker = beat[i];
+                    stock_map[ticker].SetGroup("Beat");
+                }
+
+                for (int i = 0; i < meet.size(); i++) {
+                    string ticker = meet[i];
+                    stock_map[ticker].SetGroup("Beat");
+                }
+
+                for (int i = 0; i < miss.size(); i++) {
+                    string ticker = miss[i];
+                    stock_map[ticker].SetGroup("Beat");
+                }
+                    
                 bs.SetDates(2 * N);
 
                 beat_calculation = bs.CalculateAll(beat_estimated, ar_table);

@@ -91,7 +91,7 @@ void Bootstrap::SplitToGroups(vector<string>& title, vector<string>& beat, vecto
     copy(title.begin() + msize, title.begin() + 2 * msize, back_inserter(meet));
     copy(title.begin() + 2 * msize, title.begin() + title.size(), back_inserter(beat));
 
-    cout << endl << "Stocks successfully seperated to different groups." << endl << endl;
+    cout << endl << "Stocks successfully seperated into different groups." << endl << endl;
 }
 
 vector<Vector> Bootstrap::GetAR(int m, vector<vector<string>> vec, map<string, Vector> ar_table) {
@@ -223,7 +223,6 @@ vector<string> Bootstrap::Resample(vector<string> vec) {
     while (count < number_of_samples) {
         count += 1;
         index = rand() % len;
-
         result.push_back(vec[index]);
     }
 

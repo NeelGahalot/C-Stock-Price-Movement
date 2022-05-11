@@ -18,6 +18,118 @@ struct MemoryStruct {
 	size_t total_size;
 };
 
+// Return if year is leap year or not.
+bool CheckLeap(int y) {
+	if (y % 100 != 0 && y % 4 == 0 || y % 400 == 0)
+		return true;
+
+	return false;
+}
+
+// Given a date, returns number of days elapsed
+// from the  beginning of the current year (1st
+// jan).
+int OffsetDays(int d, int m, int y) {
+	int offset = d;
+
+	switch (m - 1) {
+	case 11:
+		offset += 30;
+	case 10:
+		offset += 31;
+	case 9:
+		offset += 30;
+	case 8:
+		offset += 31;
+	case 7:
+		offset += 31;
+	case 6:
+		offset += 30;
+	case 5:
+		offset += 31;
+	case 4:
+		offset += 30;
+	case 3:
+		offset += 31;
+	case 2:
+		offset += 28;
+	case 1:
+		offset += 31;
+	}
+
+	if (CheckLeap(y) && m > 2)
+		offset += 1;
+
+	return offset;
+}
+
+// Given a year and days elapsed in it, finds
+// date by storing results in d and m.
+void ReverseOffsetDays(int offset, int y, int* d, int* m) {
+	int month[13] = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+	if (CheckLeap(y))
+		month[2] = 29;
+
+	int i;
+	for (i = 1; i <= 12; i++)
+	{
+		if (offset <= month[i])
+			break;
+		offset = offset - month[i];
+	}
+
+	*d = offset;
+	*m = i;
+}
+
+// Add x days to the given date.
+string AddDays(string date, int days) {
+	string end_date;
+
+	int y1 = stoi(date.substr(0, 4));
+	int m1 = stoi(date.substr(6, 2));
+	int d1 = stoi(date.substr(8));
+
+	int offset1 = OffsetDays(d1, m1, y1);
+	int remDays = CheckLeap(y1) ? (366 - offset1) : (365 - offset1);
+
+	// y2 is going to store result year and
+	// offset2 is going to store offset days
+	// in result year.
+	int y2, offset2;
+	if (days <= remDays)
+	{
+		y2 = y1;
+		offset2 = offset1 + days;
+	}
+
+	else
+	{
+		// x may store thousands of days.
+		// We find correct year and offset
+		// in the year.
+		days -= remDays;
+		y2 = y1 + 1;
+		int y2days = CheckLeap(y2) ? 366 : 365;
+		while (days >= y2days)
+		{
+			days -= y2days;
+			y2++;
+			y2days = CheckLeap(y2) ? 366 : 365;
+		}
+		offset2 = days;
+	}
+
+	// Find values of day and month from
+	// offset of result year.
+	int m2, d2;
+	ReverseOffsetDays(offset2, y2, &d2, &m2);
+
+	end_date = to_string(y2) + "-" + to_string(m2) + "-" + to_string(d2);
+	return end_date;
+}
+
 void* myrealloc(void* ptr, size_t size) {
 	if (ptr)
 		return realloc(ptr, size);
@@ -128,7 +240,6 @@ int ExtractIWVData(map<string, double>& iwv_date_map, string& start_date, string
 
 int ExtractStockData(map<string, Stock> stock_map, map<string, map<string, double>>& date_price_map, string& start_date, string& end_date) {
 	int count = 0;
-
 	int length = stock_map.size();
 
 	// declaration of an object CURL
@@ -162,8 +273,6 @@ int ExtractStockData(map<string, Stock> stock_map, map<string, map<string, doubl
 			memset(data.memory, '\0', data.total_size);
 
 			string symbol = itr->first;
-			//string date = itr->second;
-			//string date = itr->second.GetAnnounceDate();
 			string url_request = url_common + symbol + ".US?" + "from=" + start_date + "&to=" + end_date + "&api_token=" + api_token + "&period=d";
 			curl_easy_setopt(handle, CURLOPT_URL, url_request.c_str());
 
@@ -204,8 +313,8 @@ int ExtractStockData(map<string, Stock> stock_map, map<string, map<string, doubl
 
 			count += 1;
 
-			if (count % (length / 10) == 0)
-				cout << "- - - - - - - - - - - - - - - - Downloading " << ceil((count * 1.0 / length) * 100) << "% - - - - - - - - - - - - - - - - \r";
+			if (count % 1 == 0)
+				cout << "- - - - - - - - - - - - - - Downloading " << ceil((count * 1.0 / length) * 100) << "% - - - - - - - - - - - - - - \r";
 		}
 
 		free(data.memory);

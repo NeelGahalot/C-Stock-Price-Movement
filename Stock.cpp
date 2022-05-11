@@ -110,7 +110,7 @@ ostream& operator<<(ostream& os, Stock& stock) {
     os << "Announcement Date: " << stock.GetAnnounceDate() << endl;
     os << "Period Ending: " << stock.GetEndDate() << endl;
     os << "Estimated Earning Per Share: " << stock.GetEstimatedEPS() << endl;
-    os << "Actual Earning Per Share: " << stock.GetEstimatedEPS() << endl;
+    os << "Actual Earning Per Share: " << stock.GetReportedEPS() << endl;
     os << "Surprise: " << stock.GetSurprise() << endl;
     os << "Surprise %: " << stock.GetSurprisePercent() << endl;
     os << "Daily Prices: " << endl;
