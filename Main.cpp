@@ -203,12 +203,12 @@ int main() {
 
                 for (int i = 0; i < meet.size(); i++) {
                     string ticker = meet[i];
-                    stock_map[ticker].SetGroup("Beat");
+                    stock_map[ticker].SetGroup("Meet");
                 }
 
                 for (int i = 0; i < miss.size(); i++) {
                     string ticker = miss[i];
-                    stock_map[ticker].SetGroup("Beat");
+                    stock_map[ticker].SetGroup("Miss");
                 }
                     
                 bs.SetDates(2 * N);
@@ -234,8 +234,6 @@ int main() {
                         stock_map[ticker].SetDailyReturns(daily_return);
                         cum_daily_return = bs.CalculateCumReturn(daily_return);
                         stock_map[ticker].SetCumDailyReturns(cum_daily_return);
-
-                        cout << stock_map[ticker] << endl;
                         break;
                     }
                     else if (i == valid_tickers.size() - 1) {
